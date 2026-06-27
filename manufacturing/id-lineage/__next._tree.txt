@@ -1,0 +1,2 @@
+:HL["/luya-platform/_next/static/chunks/335loqsq_ci6o.css","style"]
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"(app)","param":null,"prefetchHints":0,"slots":{"children":{"name":"manufacturing","param":null,"prefetchHints":0,"slots":{"children":{"name":"id-lineage","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}}}}}},"staleTime":300,"buildId":"N_f0C2Wc18Z-PCahd_Knm"}

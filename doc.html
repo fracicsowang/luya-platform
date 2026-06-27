@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Luya Platform — 设备身份 · 制造 · 激活 设计说明</title>
+<style>
+  :root{
+    --green:#16a34a; --green-d:#15803d; --bg:#f5f7f5; --card:#fff;
+    --ink:#1f2622; --muted:#6b7280; --line:#e5e7eb;
+    --blue:#2563eb; --amber:#b45309; --red:#dc2626; --teal:#0d9488; --violet:#7c3aed;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+    line-height:1.6;font-size:15px}
+  a{color:var(--green-d);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .en{color:var(--muted);font-weight:400}
+  .wrap{max-width:980px;margin:0 auto;padding:0 20px}
+  header.top{background:linear-gradient(135deg,#16a34a,#0d9488);color:#fff;padding:34px 0}
+  header.top .wrap{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .logo{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.2);
+    display:grid;place-items:center;font-weight:800;font-size:22px}
+  header.top h1{margin:0;font-size:22px}
+  header.top p{margin:3px 0 0;opacity:.9;font-size:13px}
+  header.top .live{margin-left:auto;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);
+    color:#fff;padding:7px 12px;border-radius:9px;font-size:13px}
+  .layout{display:flex;gap:28px;align-items:flex-start;padding:28px 0}
+  nav.toc{position:sticky;top:18px;flex:0 0 210px;font-size:13px}
+  nav.toc ol{list-style:none;margin:0;padding:0;counter-reset:s}
+  nav.toc li{counter-increment:s;margin:2px 0}
+  nav.toc a{display:block;padding:5px 9px;border-radius:7px;color:#374151}
+  nav.toc a:hover{background:#eef2ef;text-decoration:none}
+  nav.toc a::before{content:counter(s) ". ";color:var(--green);font-weight:700}
+  main{flex:1;min-width:0}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:18px}
+  section>h2{margin:0 0 4px;font-size:18px}
+  section>h2 .en{font-size:14px}
+  .lead{color:var(--muted);font-size:13px;margin:0 0 14px}
+  h3{font-size:14px;margin:18px 0 6px}
+  p{margin:8px 0}
+  ul,ol{margin:8px 0;padding-left:22px}
+  li{margin:3px 0}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#f3f4f6;
+    padding:1px 5px;border-radius:5px;font-size:.86em;color:#111}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+  th{background:#f0f4f1;font-weight:600}
+  td code{background:#eef2ef}
+  .pill{display:inline-block;padding:1px 7px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
+  .p-pub{background:#dbeafe;color:#1d4ed8}.p-sec{background:#fee2e2;color:#b91c1c}
+  .p-int{background:#e5e7eb;color:#374151}.p-semi{background:#fef3c7;color:#92400e}
+  .flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0}
+  .step{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;padding:6px 10px;font-size:13px}
+  .step b{display:block}.arrow{color:#9ca3af}
+  .note{border-left:3px solid var(--green);background:#f0fdf4;border-radius:0 8px 8px 0;padding:10px 14px;margin:12px 0;font-size:13px}
+  .note.warn{border-color:var(--amber);background:#fffbeb}
+  .note.key{border-color:var(--blue);background:#eff6ff}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0}
+  .kbox{border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+  .kbox h4{margin:0 0 3px;font-size:13px}.kbox p{margin:0;font-size:12px;color:var(--muted)}
+  footer{color:var(--muted);font-size:12px;text-align:center;padding:24px 0 40px}
+  @media(max-width:760px){.layout{flex-direction:column}nav.toc{position:static;flex:none;width:100%}
+    .grid3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="logo">L</div>
+    <div>
+      <h1>Luya Platform — 设备身份 · 制造 · 激活 <span class="en">Device Identity · Manufacturing · Activation</span></h1>
+      <p>设计说明（中英对照）· Design notes (bilingual) · v1</p>
+    </div>
+    <a class="live" href="./dashboard/">← 打开模拟系统 Open the mock app</a>
+  </div>
+</header>
+
+<div class="wrap">
+<div class="layout">
+<nav class="toc">
+  <ol>
+    <li><a href="#overview">概述 Overview</a></li>
+    <li><a href="#lines">两条身份线 Two identity lines</a></li>
+    <li><a href="#lineage">设备 ID 谱系 ID lineage</a></li>
+    <li><a href="#device-mfg">设备制造（中国）</a></li>
+    <li><a href="#packaging">包装标签</a></li>
+    <li><a href="#tray-mfg">种子盘制造（美国）</a></li>
+    <li><a href="#activation">激活与归属</a></li>
+    <li><a href="#tray-use">客户使用种子盘</a></li>
+    <li><a href="#sync">渠道同步</a></li>
+    <li><a href="#security">安全设计要点</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<section id="overview">
+  <h2>1. 概述 <span class="en">· Overview</span></h2>
+  <p>Luya 是一套室内微菜种植系统：智能种植机（中国代工）+ 预播种子盘 / 营养液（美国生产）+ App + 云。</p>
+  <p class="note key"><b>核心定位：</b>Luya Platform 不是传统 ERP，而是一个 <b>IoT 产品运营平台</b>（设备云 + 制造门户 + 轻量客户/订阅）。
+    <span class="en">Not an ERP — an IoT product-operations platform (device cloud + manufacturing + light customer/subscription ops).</span></p>
+  <p><b>销售在外部后台运营：</b>Shopify（独立站）+ Amazon 各自后台管订单/收款/退货；Luya 只<b>只读同步</b>订单进来对接设备与客户，不重建销售系统。
+    <span class="en">Sales run in Shopify/Amazon backends; Luya pulls orders read-only to link devices/customers.</span></p>
+</section>
+
+<section id="lines">
+  <h2>2. 两条身份线 <span class="en">· Product identity vs Device identity</span></h2>
+  <p class="lead">「商品身份」是品类级（一款商品），「设备身份」是单台级（一台机器）。一个 SKU 下有成千上万台不同 SN。</p>
+  <div class="flow">
+    <span style="flex:0 0 120px;font-weight:600;color:var(--blue)">商品身份 Product</span>
+    <span class="step"><b>SKU</b><span class="en">Luya 内部码</span></span><span class="arrow">—印盒上→</span>
+    <span class="step"><b>UPC</b><span class="en">GS1 全球条码</span></span><span class="arrow">—上架 Amazon→</span>
+    <span class="step"><b>ASIN</b><span class="en">Amazon 编号</span></span>
+  </div>
+  <div class="flow">
+    <span style="flex:0 0 120px;font-weight:600;color:var(--green)">设备身份 Device</span>
+    <span class="step"><b>SN</b><span class="en">这一台序列号</span></span><span class="arrow">—出厂生成→</span>
+    <span class="step"><b>UUID</b><span class="en">云端真身</span></span>
+  </div>
+  <table>
+    <tr><th>标识</th><th>谁生成</th><th>何时 / 用途</th></tr>
+    <tr><td><code>SKU</code></td><td>Luya 自定义</td><td>立项建商品时；订单/库存/工单内部用，可自由定义</td></tr>
+    <tr><td><code>UPC (GTIN)</code></td><td>GS1 申请前缀后自分配</td><td>上架前；每个可售 SKU 一个，印在零售彩盒外。GS1 官方申请基本当天拿到；<b>勿买转售码</b>（Amazon 校验品牌归属会拒登）</td></tr>
+    <tr><td><code>ASIN</code></td><td>Amazon 自动生成</td><td>上架 Amazon listing 时；仅 Amazon 体系用，不可自定义</td></tr>
+  </table>
+  <p class="note"><b>连接点：</b>订单行用 <b>SKU</b> 下单 → 履约 / 激活落到具体 <b>SN</b>。<code>SKU=哪款</code>，<code>SN=哪一台</code>。</p>
+</section>
+
+<section id="lineage">
+  <h2>3. 设备 ID 谱系 <span class="en">· Device ID lineage</span></h2>
+  <p class="lead">每个设备相关 ID：何时生成、含义、可见性。这是「Luya 掌控设备身份」的核心——哪怕工厂没有 MES。</p>
+  <div class="grid3">
+    <div class="kbox"><h4>SN · 公开身份</h4><p>印机身/箱外+二维码，到处查；公开，<b>不含密钥</b>，且连续可枚举。</p></div>
+    <div class="kbox"><h4>认领权 · 蓝牙近场</h4><p>无激活码卡：在机器旁用<b>蓝牙近场</b>读到 SN，激活在连 Wi-Fi 这一步完成 = 证明物理占有。</p></div>
+    <div class="kbox"><h4>UUID · 云端真身</h4><p>永不变、不外露；证书/MQTT 认它，换标签也改不了身份。</p></div>
+  </div>
+  <table>
+    <tr><th>ID</th><th>生成环节</th><th>含义</th><th>可见性</th></tr>
+    <tr><td><code>work_order_number</code></td><td>开单（运营）</td><td>批次号，质量追溯到生产批</td><td><span class="pill p-int">内部</span></td></tr>
+    <tr><td><code>serial_number (SN)</code></td><td>工位 A 生成（系统）</td><td>人读主键 <code>LYX-YYMM-######</code>，全链路查它</td><td><span class="pill p-pub">公开</span></td></tr>
+    <tr><td><code>device_uuid</code></td><td>工位 A 生成</td><td>永不变的云端真身，证书/MQTT 绑它</td><td><span class="pill p-int">内部</span></td></tr>
+    <tr><td><code>device_secret</code></td><td>工位 A 生成</td><td>设备↔云通信凭证（TLS/证书）；不印卡、不给客户</td><td><span class="pill p-int">内部</span></td></tr>
+    <tr><td><code>qr_token</code></td><td>工位 A 生成</td><td>二维码里随 SN 一起编入；防伪/防枚举，绑定时校验</td><td><span class="pill p-sec">私密</span></td></tr>
+    <tr><td>部件 SN：PCB/相机/水泵/LED/电源</td><td>工位 A 绑定（工人扫枪）</td><td>部件级追溯，RMA/批次召回</td><td><span class="pill p-int">内部</span></td></tr>
+    <tr><td><code>wifi_mac</code> / <code>bt_mac</code></td><td>工位 A 绑定</td><td>网络身份，配网/识别</td><td><span class="pill p-semi">半公开</span></td></tr>
+    <tr><td><code>mcu_id</code></td><td>工位 A 绑定</td><td>主控芯片唯一号，防伪/绑定校验</td><td><span class="pill p-int">内部</span></td></tr>
+    <tr><td><code>firmware_version</code></td><td>工位 A 烧录 / 后续 OTA</td><td>当前固件，可 OTA 更新</td><td><span class="pill p-int">内部</span></td></tr>
+    <tr><td><code>owner (email)</code></td><td>客户绑定（扫码+邮箱）</td><td>设备↔账户归属；解绑即恢复出厂、可转让</td><td><span class="pill p-int">内部</span></td></tr>
+    <tr><td><code>grow / recipe / tray_id</code></td><td>首次种植（扫种子盘）</td><td>把这台的一次生长串起来</td><td><span class="pill p-int">内部</span></td></tr>
+  </table>
+  <p class="note"><b>主线：</b>工单 → 生成 SN/UUID → 部件 SN 挂到 SN 名下 → 印标签发货（外部只有 SN+二维码）→ 客户邮箱登录 + 蓝牙近场读 SN，连 Wi-Fi 这一步完成激活 → 写 owner → 云端用 UUID 作真身 → 种植/客服都用 SN 反查全部上下文。</p>
+</section>
+
+<section id="device-mfg">
+  <h2>4. 设备制造（中国工厂 · 多工位扫码）<span class="en">· Device manufacturing</span></h2>
+  <p class="lead">即使工厂没有 MES，每台设备也必须先在 Luya 制造门户「出生」。下单 100 套 = 一张工单，批量预生成身份。</p>
+  <h3>第 1 步：批量预生成（主管）</h3>
+  <p>系统一次性发放 100 个 <code>SN / UUID / device_secret / qr_token</code>，并<b>提前打印整卷二维码标签</b>分发到工位。</p>
+  <h3>三个独立工位（每个 = 一名工人的屏）</h3>
+  <div class="flow">
+    <span class="step"><b>工位 A · 装配</b><span class="en">扫码 → 绑定部件 SN/MAC → 烧录固件</span></span><span class="arrow">→</span>
+    <span class="step"><b>工位 B · 测试/质检</b><span class="en">16 项测试 → QC；失败留本工位返修</span></span><span class="arrow">→</span>
+    <span class="step"><b>工位 C · 装箱/发货</b><span class="en">装箱 → 标记待发货</span></span>
+  </div>
+  <p>工人动作只有三件：<b>扫 SN → 干活 → 点一个按钮</b>。工位屏永远只显示「当前这一台」；一张工单实时显示 <code>37 / 100</code>。一条「线体流水总览」显示每个工位在制/排队数，一眼看出瓶颈。</p>
+  <p class="note warn"><b>外箱不放激活码卡。</b>外部只印 SN+二维码；激活改用「邮箱 + 扫码占有」，少一张卡、少一道工序，二手转让也更顺（见第 7 节）。</p>
+</section>
+
+<section id="packaging">
+  <h2>5. 包装标签 <span class="en">· Packaging labels</span></h2>
+  <p class="lead">三层标签。因 Wi-Fi/蓝牙用现成（预认证）模组，须标 <code>Contains FCC ID</code>；简易版无 NFC。</p>
+  <table>
+    <tr><th>标签</th><th>位置</th><th>主要内容</th></tr>
+    <tr><td>① 机身标</td><td>贴机身</td><td>LUYA / 型号 / SN+二维码 / 输入 / <code>Contains FCC ID</code> / UL·能效 / Made in China</td></tr>
+    <tr><td>② 零售彩盒标</td><td>印彩盒外</td><td>品名 / <b>UPC 条码</b> / SN / SKU / Part15 声明 / UL·DOE VI / 责任方(进口商) / Made in China</td></tr>
+    <tr><td>③ 运输外箱唛头</td><td>贴运输纸箱</td><td>型号/SKU / <b>ITF-14 整箱条码</b> / 数量 / 箱号 / 毛净重 / 搬运图标 / Made in China（走 FBA 再加 Box ID）</td></tr>
+  </table>
+  <p class="note"><b>印外面 vs 藏箱内：</b>外面只放 SN+二维码 + 监管标 + 零售/整箱条码；<b>箱内不再需要任何激活码卡</b>。</p>
+</section>
+
+<section id="tray-mfg">
+  <h2>6. 种子盘制造（美国工厂 · 5 步）<span class="en">· Seed-tray manufacturing</span></h2>
+  <p class="lead">消耗品在美国生产。每个托盘有唯一 ID + 二维码；仅支持 Luya 自产托盘。</p>
+  <h3>流程</h3>
+  <div class="flow">
+    <span class="step"><b>创建批次</b><span class="en">选种子+数量，生成每盘 ID+token</span></span><span class="arrow">→</span>
+    <span class="step"><b>批量印刷标签卷</b><span class="en">整卷防水预印，提前下发</span></span><span class="arrow">→</span>
+    <span class="step">a. 取盘</span><span class="arrow">→</span>
+    <span class="step">b. 放椰糠</span><span class="arrow">→</span>
+    <span class="step">c. 撒种子</span><span class="arrow">→</span>
+    <span class="step">d. 包装</span><span class="arrow">→</span>
+    <span class="step">e. 贴种子名+二维码</span>
+  </div>
+  <h3>贴的码是 SN 吗？提前印还是逐盘打？</h3>
+  <ul>
+    <li><b>人读那行是 SN</b>（<code>TRAY-BRO-2607-000001</code>）+ 种子名/批次/有效期；<b>二维码 = SN + token</b>（token 才能验真、保证一次性、仅 Luya）。</li>
+    <li><b>提前整卷批量预印（推荐）</b>：种子盘高量、产线又湿又快、贴标在最后；标签即身份（托盘无内部电子件不用绑部件）。第 e 步顺序撕贴即可。</li>
+    <li>「装一个打一个」只在小批量/可变数据/要逐盘扫码确认时才用——种子盘用不上。</li>
+  </ul>
+  <p class="note">与设备线的区别：设备要逐台扫码<b>绑部件 SN/MAC</b>，故必须一台台扫；种子盘没有要绑的东西，所以是「预印整卷 + 撕贴」。</p>
+</section>
+
+<section id="activation">
+  <h2>7. 激活与归属（新流程）<span class="en">· Activation &amp; ownership</span></h2>
+  <p class="lead">无激活码。蓝牙近场读 SN（在机器旁）+ 邮箱，激活在连 Wi-Fi 这一步完成；第一个绑定的是拥有者；可邀成员；解绑即恢复出厂、可转让。</p>
+  <div class="flow">
+    <span class="step"><b>① 邮箱登录</b></span><span class="arrow">→</span>
+    <span class="step"><b>② 蓝牙近场读 SN</b><span class="en">在机器旁，防抢注</span></span><span class="arrow">→</span>
+    <span class="step"><b>③ 连 Wi-Fi（此步完成激活）</b></span><span class="arrow">→</span>
+    <span class="step"><b>④ 第一个绑定=拥有者</b></span>
+  </div>
+  <h3>① 谁是拥有者</h3>
+  <p>第一个用「<b>蓝牙近场读 SN</b> + 邮箱」并连上 Wi-Fi 的账户成为 <b>Owner</b>——<b>激活就在连 Wi-Fi 这一步完成</b>。蓝牙近场要求人在机器旁：光有公开的 SN（还连续可枚举）<b>不能</b>激活，防止仓库/货架/物流环节被抢注，也防远程顶替。</p>
+  <h3>② 家庭共享</h3>
+  <p>Owner 可<b>邀请成员</b>（输入邮箱 + 设「可操作 / 只读」权限），多人共用同一台；别人不能自己绑，必须被邀请。</p>
+  <h3>③ 出售 / 转送</h3>
+  <p>Owner 在 App 点「解绑·恢复出厂」→ <b>释放拥有者 + 全部成员</b>、清除 Wi-Fi/种植数据 → 设备退回「未认领」→ 下一个人扫同一 SN 即成<b>新 Owner</b>。</p>
+  <p class="note warn"><b>兜底（卖家忘解绑）：</b>买家长按机身复位键即可<b>本地清除绑定</b>（无需原主配合），联网后云端自动释放旧绑定。possession=认领权，对低价值设备这个取舍最省客服。</p>
+  <table>
+    <tr><th>操作</th><th>结果</th></tr>
+    <tr><td>扫码 + 邮箱绑定</td><td>成为 Owner，设备在线</td></tr>
+    <tr><td>邀请成员</td><td>成员可看/操作（权限由 Owner 定）</td></tr>
+    <tr><td>解绑 / 恢复出厂</td><td>释放所有人、抹数据、退回未认领（转让/出售）</td></tr>
+    <tr><td>机身物理复位</td><td>无需原主即可清除绑定（二手兜底）</td></tr>
+  </table>
+</section>
+
+<section id="tray-use">
+  <h2>8. 客户使用种子盘（一次性）<span class="en">· Using a seed tray</span></h2>
+  <div class="flow">
+    <span class="step">扫种子盘二维码</span><span class="arrow">→</span>
+    <span class="step">校验：Luya 自产 + 未用过</span><span class="arrow">→</span>
+    <span class="step">放入机器，绑到该设备种植任务</span><span class="arrow">→</span>
+    <span class="step">按种子下发配方开始种</span><span class="arrow">→</span>
+    <span class="step">该码标记已用</span>
+  </div>
+  <p class="note warn"><b>二维码一次性：</b>添加后该托盘即失效，<b>任何账户都不能再添加</b>。只支持 Luya 自产托盘——token 让仿冒/复用都行不通。</p>
+</section>
+
+<section id="sync">
+  <h2>9. 渠道同步（订单→设备→客户）<span class="en">· Channel sync</span></h2>
+  <p class="lead">销售在 Shopify/Amazon 后台运营；Luya 只读拉取订单并对接设备与客户，不回写。</p>
+  <div class="flow">
+    <span class="step">客户在 Shopify/Amazon 下单</span><span class="arrow">→</span>
+    <span class="step">Webhook / SP-API 通知</span><span class="arrow">→</span>
+    <span class="step">Luya 只读导入</span><span class="arrow">→</span>
+    <span class="step">按邮箱匹配/新建客户</span><span class="arrow">→</span>
+    <span class="step">按归属匹配设备(SN)</span>
+  </div>
+  <p>这样一笔消耗品订单也能知道该补给<b>哪一台</b>机器；订单·设备·客户·订阅·客服全串起来。<b>集成难度：</b>Shopify Admin API+Webhook 中等成熟；Amazon SP-API 较重；但只需<b>单向只读</b>，比双向回写简单得多。</p>
+</section>
+
+<section id="security">
+  <h2>10. 安全设计要点 <span class="en">· Security principles</span></h2>
+  <ul>
+    <li><b>三把钥匙分工：</b><code>SN</code> 公开（给人查）/ <code>qr_token</code> 私密（验真+防枚举+一次性）/ <code>UUID</code> 云端真身（不外露）。</li>
+    <li><b>认领靠占有：</b>蓝牙近场读 SN（在机器旁）+ 连 Wi-Fi 完成激活，而非可被偷看的箱外信息；防抢注/顶替。</li>
+    <li><b>转让靠恢复出厂：</b>解绑/物理复位 → 清除归属+Wi-Fi+种植数据 → 退回未认领；设备身份(UUID/SN)不变，前任数据清干净。</li>
+    <li><b>种子盘一次性：</b>每盘唯一 token，用过即废，仅 Luya 自产。</li>
+    <li><b>外部不暴露密钥：</b>箱体/标签只有 SN+二维码；激活码卡已取消。</li>
+  </ul>
+</section>
+
+<footer>
+  Luya Platform mock · 设计说明 v1 · 模拟系统：<a href="./dashboard/">dashboard</a> ·
+  仓库 <a href="https://github.com/fracicsowang/luya-platform">github.com/fracicsowang/luya-platform</a>
+</footer>
+
+</main>
+</div>
+</div>
+</body>
+</html>

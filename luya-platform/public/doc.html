@@ -133,7 +133,7 @@
   <p class="lead">每个设备相关 ID：何时生成、含义、可见性。这是「Luya 掌控设备身份」的核心——哪怕工厂没有 MES。</p>
   <div class="grid3">
     <div class="kbox"><h4>SN · 公开身份</h4><p>印机身/箱外+二维码，到处查；公开，<b>不含密钥</b>，且连续可枚举。</p></div>
-    <div class="kbox"><h4>认领权 · 扫码+在场</h4><p>无激活码卡：扫 SN 二维码（含 <b>token</b>）+ 配网时 App 够到设备 = 证明物理占有。</p></div>
+    <div class="kbox"><h4>认领权 · 蓝牙近场</h4><p>无激活码卡：在机器旁用<b>蓝牙近场</b>读到 SN，激活在连 Wi-Fi 这一步完成 = 证明物理占有。</p></div>
     <div class="kbox"><h4>UUID · 云端真身</h4><p>永不变、不外露；证书/MQTT 认它，换标签也改不了身份。</p></div>
   </div>
   <table>
@@ -150,7 +150,7 @@
     <tr><td><code>owner (email)</code></td><td>客户绑定（扫码+邮箱）</td><td>设备↔账户归属；解绑即恢复出厂、可转让</td><td><span class="pill p-int">内部</span></td></tr>
     <tr><td><code>grow / recipe / tray_id</code></td><td>首次种植（扫种子盘）</td><td>把这台的一次生长串起来</td><td><span class="pill p-int">内部</span></td></tr>
   </table>
-  <p class="note"><b>主线：</b>工单 → 生成 SN/UUID → 部件 SN 挂到 SN 名下 → 印标签发货（外部只有 SN+二维码）→ 客户扫 SN 二维码+邮箱认领 → 写 owner → 云端用 UUID 作真身 → 种植/客服都用 SN 反查全部上下文。</p>
+  <p class="note"><b>主线：</b>工单 → 生成 SN/UUID → 部件 SN 挂到 SN 名下 → 印标签发货（外部只有 SN+二维码）→ 客户邮箱登录 + 蓝牙近场读 SN，连 Wi-Fi 这一步完成激活 → 写 owner → 云端用 UUID 作真身 → 种植/客服都用 SN 反查全部上下文。</p>
 </section>
 
 <section id="device-mfg">
@@ -204,15 +204,15 @@
 
 <section id="activation">
   <h2>7. 激活与归属（新流程）<span class="en">· Activation &amp; ownership</span></h2>
-  <p class="lead">无激活码。SN + 邮箱即可用；第一个绑定的是拥有者；可邀成员；解绑即恢复出厂、可转让。</p>
+  <p class="lead">无激活码。蓝牙近场读 SN（在机器旁）+ 邮箱，激活在连 Wi-Fi 这一步完成；第一个绑定的是拥有者；可邀成员；解绑即恢复出厂、可转让。</p>
   <div class="flow">
     <span class="step"><b>① 邮箱登录</b></span><span class="arrow">→</span>
-    <span class="step"><b>② 扫 SN 二维码</b><span class="en">含 token，防抢注</span></span><span class="arrow">→</span>
-    <span class="step"><b>③ 配网在场确认</b></span><span class="arrow">→</span>
+    <span class="step"><b>② 蓝牙近场读 SN</b><span class="en">在机器旁，防抢注</span></span><span class="arrow">→</span>
+    <span class="step"><b>③ 连 Wi-Fi（此步完成激活）</b></span><span class="arrow">→</span>
     <span class="step"><b>④ 第一个绑定=拥有者</b></span>
   </div>
   <h3>① 谁是拥有者</h3>
-  <p>第一个用「扫 SN 二维码 + 邮箱」绑定的账户成为 <b>Owner</b>。二维码内含 token：光有公开的 SN（还连续可枚举）<b>不能</b>绑定，防止仓库/货架/物流环节被抢注。配网时 App 要够到设备，顺带证明在场，防远程顶替。</p>
+  <p>第一个用「<b>蓝牙近场读 SN</b> + 邮箱」并连上 Wi-Fi 的账户成为 <b>Owner</b>——<b>激活就在连 Wi-Fi 这一步完成</b>。蓝牙近场要求人在机器旁：光有公开的 SN（还连续可枚举）<b>不能</b>激活，防止仓库/货架/物流环节被抢注，也防远程顶替。</p>
   <h3>② 家庭共享</h3>
   <p>Owner 可<b>邀请成员</b>（输入邮箱 + 设「可操作 / 只读」权限），多人共用同一台；别人不能自己绑，必须被邀请。</p>
   <h3>③ 出售 / 转送</h3>
@@ -256,7 +256,7 @@
   <h2>10. 安全设计要点 <span class="en">· Security principles</span></h2>
   <ul>
     <li><b>三把钥匙分工：</b><code>SN</code> 公开（给人查）/ <code>qr_token</code> 私密（验真+防枚举+一次性）/ <code>UUID</code> 云端真身（不外露）。</li>
-    <li><b>认领靠占有：</b>扫 SN 二维码（token）+ 配网在场，而非可被偷看的箱外信息；防抢注/顶替。</li>
+    <li><b>认领靠占有：</b>蓝牙近场读 SN（在机器旁）+ 连 Wi-Fi 完成激活，而非可被偷看的箱外信息；防抢注/顶替。</li>
     <li><b>转让靠恢复出厂：</b>解绑/物理复位 → 清除归属+Wi-Fi+种植数据 → 退回未认领；设备身份(UUID/SN)不变，前任数据清干净。</li>
     <li><b>种子盘一次性：</b>每盘唯一 token，用过即废，仅 Luya 自产。</li>
     <li><b>外部不暴露密钥：</b>箱体/标签只有 SN+二维码；激活码卡已取消。</li>

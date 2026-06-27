@@ -75,10 +75,10 @@ function DetailBody({ dev, onReset }: { dev: UDevice; onReset: () => void }) {
           <IdRow label={{ zh: "固件版本", en: "Firmware" }} value={dev.firmware_version} meaning={{ zh: "当前固件，可通过 OTA 更新", en: "Current firmware, updatable via OTA" }} />
         </Section>
 
-        <Section step="4" title={{ zh: "归属与共享", en: "Ownership & sharing" }} born={{ zh: "客户绑定（扫 SN 二维码 + 邮箱）", en: "Customer binds (scan SN QR + email)" }}>
+        <Section step="4" title={{ zh: "归属与共享", en: "Ownership & sharing" }} born={{ zh: "客户绑定（蓝牙近场 + 邮箱，连 Wi-Fi 时完成）", en: "Customer binds (BT near-field + email, completes on Wi-Fi)" }}>
           {dev.owner ? (
             <>
-              <IdRow label={{ zh: "拥有者 Owner", en: "Owner" }} value={dev.owner.name} meaning={{ zh: "第一个扫码绑定的账户；可邀请成员、可解绑转让", en: "First account to scan-and-bind; can invite members & unbind to transfer" }} />
+              <IdRow label={{ zh: "拥有者 Owner", en: "Owner" }} value={dev.owner.name} meaning={{ zh: "第一个蓝牙近场+连 Wi-Fi 绑定的账户；可邀请成员、可解绑转让", en: "First account to bind via BT near-field + Wi-Fi; can invite members & unbind to transfer" }} />
               <IdRow label={{ zh: "拥有者邮箱", en: "Owner email" }} value={dev.owner.email} meaning={{ zh: "账户标识", en: "Account identifier" }} />
               {dev.members && dev.members.length > 0 ? (
                 <div className="py-2 border-b border-gray-100 last:border-0">

@@ -49,8 +49,8 @@ const LINEAGE: Stage[] = [
     ids: [{ id: "id (dev_xxx)", meaning: { zh: "系统内部记录主键", en: "Internal record primary key" }, vis: "internal" }],
   },
   {
-    step: "5", actor: "customer", title: { zh: "客户绑定（邮箱 + 蓝牙就近）", en: "Customer binds (email + Bluetooth)" },
-    ids: [{ id: "owner (email) ↔ SN", meaning: { zh: "设备↔邮箱账户绑定；蓝牙就近证明占有后写入；解绑即恢复出厂、可转让", en: "Device↔email binding; written after Bluetooth proximity proves possession; unbind = factory reset, transferable" }, vis: "internal" }],
+    step: "5", actor: "customer", title: { zh: "客户绑定（邮箱 + 蓝牙近场 SN，连 Wi-Fi 时完成）", en: "Customer binds (email + BT near-field SN, on Wi-Fi)" },
+    ids: [{ id: "owner (email) ↔ SN", meaning: { zh: "设备↔邮箱账户绑定；蓝牙近场读 SN、连 Wi-Fi 这一步完成激活后写入；解绑即恢复出厂、可转让", en: "Device↔email binding; written when activation completes at the Wi-Fi step (BT near-field read the SN); unbind = factory reset" }, vis: "internal" }],
   },
   {
     step: "6", actor: "system", title: { zh: "首次种植", en: "First grow" },
@@ -65,7 +65,7 @@ function ActorTag({ actor }: { actor: Actor }) {
 
 const KEYS: { id: string; tone: string; title: L; desc: L }[] = [
   { id: "SN", tone: "bg-blue-50 border-blue-200", title: { zh: "SN · 公开身份", en: "SN · public identity" }, desc: { zh: "印在机身/箱外+二维码，到处用来查（公开，不含密钥）", en: "On device/box + QR, used everywhere to look up (public, no secret)" } },
-  { id: "BT", tone: "bg-teal-50 border-teal-200", title: { zh: "蓝牙就近 · 认领权", en: "Bluetooth proximity · claim right" }, desc: { zh: "无激活码卡：谁能蓝牙就近连上未认领的设备，谁就能绑定（证明物理占有）", en: "No key card: whoever can reach the unclaimed device over Bluetooth may bind it (proves possession)" } },
+  { id: "BT", tone: "bg-teal-50 border-teal-200", title: { zh: "蓝牙近场 · 认领权", en: "Bluetooth near-field · claim right" }, desc: { zh: "无激活码卡：在机器旁用蓝牙近场读到 SN，激活在连 Wi-Fi 这一步完成（证明物理占有）", en: "No key card: read the SN over Bluetooth near-field next to the machine; activation completes during Wi-Fi setup (proves possession)" } },
   { id: "UUID", tone: "bg-gray-50 border-gray-200", title: { zh: "UUID · 云端真身", en: "UUID · cloud identity" }, desc: { zh: "永不变、不外露，换标签也改不了身份", en: "Immutable, never exposed; relabeling can't change identity" } },
 ];
 
@@ -120,7 +120,7 @@ export default function IdLineagePage() {
       <Card className="p-4 mt-6 bg-green-50/40 border-green-200">
         <div className="text-sm font-semibold text-gray-900 mb-1"><Bi v={{ zh: "传递主线：SN 是贯穿全程的钥匙", en: "The through-line: SN ties it all together" }} /></div>
         <p className="text-xs text-gray-600">
-          <Bi v={{ zh: "工单 → 生成 SN/UUID → 部件 SN 挂到 SN 名下 → 印标签发货（外部只有 SN+二维码）→ 客户邮箱登录 + 蓝牙就近认领 → 写 owner(email) → 云端用 UUID 作真身 → 种植/客服都用 SN 反查全部上下文。解绑即恢复出厂、可转让。", en: "Work order → generate SN/UUID → component SNs attach under the SN → label & ship (only SN+QR outside) → customer logs in by email + claims via Bluetooth proximity → owner(email) written → cloud uses UUID as identity → grow/support look everything up by SN. Unbind = factory reset, transferable." }} />
+          <Bi v={{ zh: "工单 → 生成 SN/UUID → 部件 SN 挂到 SN 名下 → 印标签发货（外部只有 SN+二维码）→ 客户邮箱登录 + 蓝牙近场读 SN，连 Wi-Fi 这一步完成激活 → 写 owner(email) → 云端用 UUID 作真身 → 种植/客服都用 SN 反查全部上下文。解绑即恢复出厂、可转让。", en: "Work order → generate SN/UUID → component SNs attach under the SN → label & ship (only SN+QR outside) → customer logs in by email + BT near-field reads the SN, activation completes at the Wi-Fi step → owner(email) written → cloud uses UUID as identity → look up by SN. Unbind = factory reset." }} />
         </p>
       </Card>
     </div>

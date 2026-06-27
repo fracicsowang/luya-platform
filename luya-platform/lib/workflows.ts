@@ -135,16 +135,16 @@ export const wfActivation: Workflow = {
   id: "activation",
   title: { zh: "绑定 · 分享 · 转让流程", en: "Bind · Share · Transfer Flow" },
   subtitle: {
-    zh: "无激活码：扫 SN 二维码（含 token）+ 邮箱 → 第一个绑定的是拥有者；可邀成员；解绑=恢复出厂、可转让",
-    en: "No code: scan SN QR (token) + email → first binder is Owner; invite members; unbind = factory reset, transferable",
+    zh: "无激活码：蓝牙近场读 SN（在机器旁）+ 邮箱，激活在连 Wi-Fi 这一步完成 → 第一个绑定的是拥有者；可邀成员；解绑=恢复出厂、可转让",
+    en: "No code: Bluetooth near-field reads the SN (next to the machine) + email; activation completes during Wi-Fi setup → first binder is Owner; invite members; unbind = factory reset",
   },
   nodes: [
     { actor: "customer", kind: "start", title: { zh: "下载 App、邮箱登录", en: "Install App, log in with email" } },
-    { actor: "customer", title: { zh: "扫 SN 二维码（含 token，防抢注）+ 配网在场确认", en: "Scan SN QR (token, anti-jacking) + on-site Wi-Fi setup" } },
-    { actor: "system", kind: "system", title: { zh: "设备未认领 → 第一个绑定者 = 拥有者", en: "Unclaimed → first binder = Owner" } },
+    { actor: "customer", title: { zh: "蓝牙近场读取设备 SN（在机器旁，防抢注）", en: "Bluetooth near-field reads the device SN (on-site, anti-jacking)" } },
+    { actor: "system", kind: "system", title: { zh: "连 Wi-Fi → 此步完成激活：设备未认领 → 绑定者 = 拥有者", en: "Connect Wi-Fi → activation completes here: unclaimed → binder = Owner" } },
     { actor: "customer", title: { zh: "拥有者邀请家庭成员（权限可设）", en: "Owner invites members (permissions set by owner)" } },
     { actor: "customer", title: { zh: "出售/转送：拥有者解绑 → 释放所有人、恢复出厂", en: "Sell/gift: owner unbinds → releases everyone, factory reset" } },
-    { actor: "customer", kind: "end", title: { zh: "新人扫 SN 成为新拥有者（兜底：机身物理复位）", en: "New person scans SN → new Owner (fallback: physical reset)" } },
+    { actor: "customer", kind: "end", title: { zh: "新人蓝牙近场即成新拥有者（兜底：机身物理复位）", en: "New person near-field → new Owner (fallback: physical reset)" } },
   ],
 };
 

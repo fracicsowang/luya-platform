@@ -56,30 +56,31 @@ function AddDeviceView() {
     return (
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <div className="text-sm font-semibold text-gray-900">② <Bi v={{ zh: "添加设备（扫 SN 二维码）", en: "Add device (scan SN QR)" }} /></div>
+          <div className="text-sm font-semibold text-gray-900">② <Bi v={{ zh: "蓝牙近场发现设备（读取 SN）", en: "Bluetooth near-field (reads SN)" }} /></div>
           <button onClick={() => dispatch({ type: "cancelAdd" })} className="text-xs text-gray-400 hover:text-gray-700"><Bi v={{ zh: "取消", en: "Cancel" }} /></button>
         </div>
+        <p className="text-[11px] text-gray-400"><Bi v={{ zh: "靠近机器，App 通过蓝牙近场读到它的 SN——近场=必须在机器旁，防远程抢注。", en: "Hold the phone near the machine; the App reads its SN over Bluetooth near-field — proximity blocks remote claim-jacking." }} /></p>
         {!scanned ? (
-          <Btn full tone="blue" onClick={() => setScanned(true)}>📷 <Bi v={{ zh: "扫描设备二维码", en: "Scan device QR" }} /></Btn>
+          <Btn full tone="blue" onClick={() => setScanned(true)}>🔵 <Bi v={{ zh: "蓝牙近场扫描", en: "Bluetooth near-field scan" }} /></Btn>
         ) : list.length === 0 ? (
-          <div className="rounded-lg bg-amber-50 text-amber-800 text-xs px-3 py-2"><Bi v={{ zh: "附近没有未认领的设备。去产线发货一批。", en: "No unclaimed devices. Ship a batch from the line." }} /></div>
+          <div className="rounded-lg bg-amber-50 text-amber-800 text-xs px-3 py-2"><Bi v={{ zh: "附近没有未认领的设备。去产线发货一批。", en: "No unclaimed devices nearby. Ship a batch from the line." }} /></div>
         ) : (
           <div className="space-y-1.5 max-h-44 overflow-y-auto">
-            <div className="text-[11px] text-gray-400"><Bi v={{ zh: `扫到 ${list.length} 台未认领设备（二维码含 token）`, en: `${list.length} unclaimed devices (QR carries a token)` }} /></div>
+            <div className="text-[11px] text-gray-400"><Bi v={{ zh: `近场发现 ${list.length} 台未认领设备`, en: `${list.length} unclaimed devices nearby` }} /></div>
             {list.slice(0, 12).map((d) => (
               <button key={d.sn} onClick={() => dispatch({ type: "pick", sn: d.sn })} className="w-full flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2 text-left hover:bg-green-50">
-                <span className="font-mono text-sm text-gray-800">▣ {d.sn}</span>
-                <span className="text-green-600 text-xs"><Bi v={{ zh: "添加", en: "Add" }} /></span>
+                <span className="font-mono text-sm text-gray-800">🔵 {d.sn}</span>
+                <span className="text-green-600 text-xs"><Bi v={{ zh: "选择", en: "Select" }} /></span>
               </button>
             ))}
           </div>
         )}
-        {/* anti-jacking demo: SN alone is rejected */}
+        {/* anti-jacking demo: SN alone is rejected — must be near-field */}
         <div className="border-t border-gray-100 pt-2">
           <div className="text-[11px] text-gray-400 mb-1"><Bi v={{ zh: "手输序列号试试：", en: "Try typing a serial:" }} /></div>
           <div className="flex gap-2">
             <input value={manualSn} onChange={(e) => { setManualSn(e.target.value); setErr(null); }} placeholder="LYX-2607-000001" className="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-mono" />
-            <Btn sm tone="gray" onClick={() => setErr({ zh: "仅凭 SN 无法绑定——SN 是公开的、还连续可枚举。请扫描二维码（内含校验 token），防止他人凭序列号抢注。", en: "SN alone can't bind — it's public and enumerable. Scan the QR (it carries a token) to prevent claim-jacking." })}><Bi v={{ zh: "绑定", en: "Bind" }} /></Btn>
+            <Btn sm tone="gray" onClick={() => setErr({ zh: "仅凭 SN 无法激活——SN 是公开的、还连续可枚举。必须蓝牙近场（在机器旁）才能激活，防他人凭序列号抢注。", en: "SN alone can't activate — it's public and enumerable. Activation requires Bluetooth near-field (next to the machine)." })}><Bi v={{ zh: "激活", en: "Activate" }} /></Btn>
           </div>
           {err ? <div className="mt-1 text-[11px] text-red-600"><Bi v={err} /></div> : null}
         </div>
@@ -87,18 +88,16 @@ function AddDeviceView() {
     );
   }
 
-  // wifi + bind
+  // Wi-Fi stage — activation completes here (BT near-field already confirmed SN)
   return (
     <div className="space-y-3">
-      <div className="text-sm font-semibold text-gray-900">③ <Bi v={{ zh: "连接 Wi-Fi 并成为拥有者", en: "Connect Wi-Fi & become Owner" }} /></div>
-      <div className="rounded-md bg-gray-50 px-2.5 py-1.5 text-xs text-gray-600 font-mono">▣ {ob.sn}</div>
-      <p className="text-[11px] text-gray-400"><Bi v={{ zh: "配网时 App 需连上设备（蓝牙/局域网）——这一步也证明你在机器旁，防远程顶替。", en: "Setup connects the app to the device (BT/LAN) — this also proves you're next to it, blocking remote takeover." }} /></p>
+      <div className="text-sm font-semibold text-gray-900">③ <Bi v={{ zh: "连接 Wi-Fi（此步完成激活）", en: "Connect Wi-Fi (activation completes here)" }} /></div>
+      <div className="rounded-md bg-gray-50 px-2.5 py-1.5 text-xs text-gray-600 font-mono">🔵 {ob.sn}</div>
+      <p className="text-[11px] text-gray-400"><Bi v={{ zh: "蓝牙近场已确认这台的 SN。连上 Wi-Fi 后，激活在这一步完成：设备入云、绑定为拥有者。", en: "Bluetooth near-field already confirmed this unit's SN. On Wi-Fi connect, activation completes here: device joins cloud & binds to you as Owner." }} /></p>
       <Field label={{ zh: "Wi-Fi 名称", en: "Wi-Fi SSID" }} value={ob.wifiSsid} onChange={(v) => dispatch({ type: "setWifi", ssid: v })} />
-      {!ob.wifiConnected ? (
-        <Btn full onClick={() => dispatch({ type: "connectWifi" })} disabled={!ob.wifiSsid}>📶 <Bi v={{ zh: "连接", en: "Connect" }} /></Btn>
-      ) : (
-        <Btn full onClick={() => dispatch({ type: "bindOwner", at: new Date().toISOString().slice(0, 16).replace("T", " ") })}>✅ <Bi v={{ zh: "绑定为拥有者", en: "Bind as Owner" }} /></Btn>
-      )}
+      <Btn full disabled={!ob.wifiSsid} onClick={() => { dispatch({ type: "connectWifi" }); dispatch({ type: "bindOwner", at: new Date().toISOString().slice(0, 16).replace("T", " ") }); }}>
+        📶 <Bi v={{ zh: "连接 Wi-Fi 并完成激活", en: "Connect Wi-Fi & finish activation" }} />
+      </Btn>
     </div>
   );
 }
@@ -186,7 +185,7 @@ function DeviceCard({ binding, role, me }: { binding: Binding; role: "owner" | "
       {/* danger zone */}
       <div className="border-t border-gray-100 pt-2">
         {role === "owner" ? (
-          <button onClick={() => { if (confirm("解绑并恢复出厂？将释放拥有者+所有成员、抹除 Wi-Fi/种植数据，设备退回「未认领」，可被他人扫码重新绑定（转让/出售）。")) dispatch({ type: "unbind", sn: binding.sn }); }} className="w-full rounded-lg bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 text-xs font-medium">
+          <button onClick={() => { if (confirm("解绑并恢复出厂？将释放拥有者+所有成员、抹除 Wi-Fi/种植数据，设备退回「未认领」，可被他人蓝牙近场重新绑定（转让/出售）。")) dispatch({ type: "unbind", sn: binding.sn }); }} className="w-full rounded-lg bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 text-xs font-medium">
             🔁 <Bi v={{ zh: "解绑·恢复出厂（转让 / 出售）", en: "Unbind · factory reset (transfer / sell)" }} />
           </button>
         ) : (
@@ -209,7 +208,7 @@ function HomeView() {
         <Btn sm onClick={() => dispatch({ type: "startAdd" })}>＋ <Bi v={{ zh: "添加设备", en: "Add device" }} /></Btn>
       </div>
       {mine.length === 0 ? (
-        <div className="rounded-lg bg-gray-50 text-gray-500 text-xs px-3 py-4 text-center"><Bi v={{ zh: "还没有设备。点「添加设备」扫码绑定。", en: "No devices yet. Tap Add device to scan & bind." }} /></div>
+        <div className="rounded-lg bg-gray-50 text-gray-500 text-xs px-3 py-4 text-center"><Bi v={{ zh: "还没有设备。点「添加设备」蓝牙近场绑定。", en: "No devices yet. Tap Add device to bind via Bluetooth near-field." }} /></div>
       ) : (
         <div className="space-y-2">
           {mine.map(({ binding, role }) => (
@@ -248,7 +247,7 @@ function ActivationScreen() {
       <PageHeader
         pillar={{ zh: "Luya Cloud · 设备云", en: "Luya Cloud" }}
         title={{ zh: "绑定 · 分享 · 转让（模拟 Luya App）", en: "Bind · Share · Transfer (Luya App mock)" }}
-        desc={{ zh: "无激活码：邮箱登录 + 扫 SN 二维码 → 第一个绑定的成「拥有者」；拥有者可邀请家庭成员（权限可设）；解绑=恢复出厂，释放全部账户、设备退回未认领，新人扫码即成新拥有者（转让/出售）。切换账户可扮演不同用户。", en: "No code: email login + scan SN QR → first binder = Owner; Owner invites members (with permissions); unbind = factory reset, releases everyone, next person scans to become new Owner (transfer/sell). Switch account to play different users." }}
+        desc={{ zh: "无激活码：邮箱登录 + 蓝牙近场读 SN（在机器旁），激活在连 Wi-Fi 这一步完成 → 第一个绑定的成「拥有者」；拥有者可邀请家庭成员（权限可设）；解绑=恢复出厂，释放全部账户、设备退回未认领，新人蓝牙近场即成新拥有者（转让/出售）。切换账户可扮演不同用户。", en: "No code: email login + Bluetooth near-field reads the SN (next to the machine); activation completes at the Wi-Fi step → first binder = Owner; Owner invites members; unbind = factory reset, next person near-field becomes new Owner. Switch account to play different users." }}
       />
       <div className="mb-4">
         <Link href="/devices" className="text-sm text-gray-500 hover:text-gray-800">← <Bi v={{ zh: "返回设备", en: "Back to Devices" }} /></Link>

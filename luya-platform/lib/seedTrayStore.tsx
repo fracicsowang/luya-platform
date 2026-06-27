@@ -32,14 +32,23 @@ export const SEED_NEXT_ACTION: Record<SeedStage, L | null> = {
   labeled: null,
 };
 
-export type SeedKey = "broccoli" | "radish" | "pea" | "sunflower";
+export type SeedKey = "broccoli" | "radish" | "pea" | "sunflower" | "kale" | "arugula" | "mustard" | "beet" | "cabbage" | "wheatgrass";
 
 export const SEEDS: Record<SeedKey, { name: L; abbr: string; recipeId: string }> = {
   broccoli: { name: { zh: "西兰花", en: "Broccoli" }, abbr: "BRO", recipeId: "rec_1" },
   radish: { name: { zh: "萝卜苗", en: "Radish" }, abbr: "RAD", recipeId: "rec_2" },
   pea: { name: { zh: "豌豆苗", en: "Pea Shoots" }, abbr: "PEA", recipeId: "rec_3" },
   sunflower: { name: { zh: "葵花苗", en: "Sunflower" }, abbr: "SUN", recipeId: "rec_4" },
+  kale: { name: { zh: "羽衣甘蓝", en: "Kale" }, abbr: "KAL", recipeId: "rec_6" },
+  arugula: { name: { zh: "芝麻菜", en: "Arugula" }, abbr: "ARU", recipeId: "rec_7" },
+  mustard: { name: { zh: "芥菜", en: "Mustard" }, abbr: "MUS", recipeId: "rec_8" },
+  beet: { name: { zh: "甜菜", en: "Beet" }, abbr: "BEE", recipeId: "rec_9" },
+  cabbage: { name: { zh: "紫甘蓝", en: "Red Cabbage" }, abbr: "CAB", recipeId: "rec_10" },
+  wheatgrass: { name: { zh: "小麦草", en: "Wheatgrass" }, abbr: "WHE", recipeId: "rec_11" },
 };
+
+/** The sellable tray SKU for a seed (TRAY-<ABBR>-4PK). */
+export const traySku = (seedKey: SeedKey) => `TRAY-${SEEDS[seedKey].abbr}-4PK`;
 
 export type TrayUse = { email: string; sn: string; at: string };
 

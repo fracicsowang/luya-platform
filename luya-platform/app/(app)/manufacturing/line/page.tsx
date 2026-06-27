@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Bi, Card } from "@/components/ui";
 import { TONE_BADGE, Tone } from "@/lib/tone";
 import { L } from "@/lib/i18n";
+import { activeMachineSkus } from "@/lib/products";
 import {
   COMPONENTS,
   LineProvider,
@@ -326,13 +327,23 @@ function StationScanBar({ stationId }: { stationId: StationId }) {
 
 function GeneratePanel() {
   const { state, dispatch } = useLine();
+  const machineSkus = activeMachineSkus();
+  const [sku, setSku] = useState(state.wo.sku);
   return (
     <Card className="p-6">
       <div className="text-sm font-semibold text-gray-900 mb-1"><Bi v={{ zh: "第 1 步 · 批量预生成设备身份（主管）", en: "Step 1 · Batch pre-generate identities (supervisor)" }} /></div>
-      <p className="text-xs text-gray-500 mb-4 max-w-xl">
-        <Bi v={{ zh: `工单 ${state.wo.number} 计划 ${state.wo.qty} 台。点一下，系统一次性发放 ${state.wo.qty} 个 序列号/UUID/激活码/二维码，并提前打印成一卷标签，再分发到各工位。`, en: `Work order ${state.wo.number}, qty ${state.wo.qty}. One click issues all identities + pre-prints a label roll, distributed to the stations.` }} />
+      <p className="text-xs text-gray-500 mb-3 max-w-xl">
+        <Bi v={{ zh: `工单 ${state.wo.number} 计划 ${state.wo.qty} 台。先选本批次的 SKU（型号+颜色+市场）——每个生成的 SN 都带上它，打通 SN→SKU→UPC/ASIN。`, en: `Work order ${state.wo.number}, qty ${state.wo.qty}. Pick the batch SKU (model+color+market) — every generated SN carries it, connecting SN→SKU→UPC/ASIN.` }} />
       </p>
-      <Btn onClick={() => dispatch({ type: "generate" })}>🏷️ <Bi v={{ zh: `生成 ${state.wo.qty} 台设备`, en: `Generate ${state.wo.qty} devices` }} /></Btn>
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="block">
+          <span className="text-xs text-gray-500"><Bi v={{ zh: "本批次 SKU", en: "Batch SKU" }} /></span>
+          <select value={sku} onChange={(e) => setSku(e.target.value)} className="mt-1 block rounded-lg border border-gray-300 px-3 py-2 text-sm font-mono">
+            {machineSkus.map((p) => (<option key={p.sku} value={p.sku}>{p.sku} · {p.variant.zh}</option>))}
+          </select>
+        </label>
+        <Btn onClick={() => dispatch({ type: "generate", sku })}>🏷️ <Bi v={{ zh: `生成 ${state.wo.qty} 台设备`, en: `Generate ${state.wo.qty} devices` }} /></Btn>
+      </div>
     </Card>
   );
 }
@@ -371,7 +382,8 @@ function LineStation() {
         <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
           <div className="text-sm">
             <span className="font-mono font-semibold text-gray-900">{state.wo.number}</span>
-            <span className="text-gray-400"> · {state.wo.model} · {state.wo.hw} · FW {state.wo.fw}</span>
+            <span className="text-gray-400"> · SKU </span><span className="font-mono text-gray-700">{state.wo.sku}</span>
+            <span className="text-gray-400"> · {state.wo.hw} · FW {state.wo.fw}</span>
           </div>
           <div className="text-sm tabular-nums text-gray-600">
             <Bi v={{ zh: "待发货", en: "Ship-ready" }} /> <span className="font-semibold text-green-700">{c.shipReady}</span> / {state.wo.qty} <span className="text-gray-400">({pct}%)</span>

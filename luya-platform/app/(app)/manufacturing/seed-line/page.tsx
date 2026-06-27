@@ -71,7 +71,7 @@ function TrayLabel({ id, seedKey, lot, expiry }: { id: string; seedKey: SeedKey;
   );
 }
 
-const SEED_OPTIONS: SeedKey[] = ["broccoli", "radish", "pea", "sunflower"];
+const SEED_OPTIONS: SeedKey[] = ["broccoli", "radish", "pea", "sunflower", "kale", "arugula", "mustard", "beet", "cabbage", "wheatgrass"];
 
 function GeneratePanel() {
   const { dispatch } = useSeedTray();
@@ -83,9 +83,9 @@ function GeneratePanel() {
       <p className="text-xs text-gray-500 mb-4 max-w-xl"><Bi v={{ zh: "选种子类型和数量，系统为每个托盘生成唯一 ID + 二维码（含 token）。", en: "Pick seed type & qty; the system issues a unique ID + QR (with token) per tray." }} /></p>
       <div className="flex flex-wrap items-end gap-3">
         <label className="block">
-          <span className="text-xs text-gray-500"><Bi v={{ zh: "种子类型", en: "Seed type" }} /></span>
+          <span className="text-xs text-gray-500"><Bi v={{ zh: "种子类型（10 种）", en: "Seed type (10)" }} /></span>
           <select value={seed} onChange={(e) => setSeed(e.target.value as SeedKey)} className="mt-1 block rounded-lg border border-gray-300 px-3 py-2 text-sm">
-            {SEED_OPTIONS.map((s) => (<option key={s} value={s}>{SEEDS[s].name.zh} · {SEEDS[s].name.en}</option>))}
+            {SEED_OPTIONS.map((s) => (<option key={s} value={s}>{SEEDS[s].name.zh} · {SEEDS[s].name.en} — TRAY-{SEEDS[s].abbr}-4PK</option>))}
           </select>
         </label>
         <label className="block">

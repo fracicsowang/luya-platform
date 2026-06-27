@@ -100,6 +100,12 @@ export const recipes: Recipe[] = [
   { id: "rec_3", name: { zh: "豌豆苗 v1.0", en: "Pea Shoots v1.0" }, seed_type: SEEDS[2], version: "1.0", status: "active", duration_days: 12 },
   { id: "rec_4", name: { zh: "葵花苗 v0.9", en: "Sunflower v0.9" }, seed_type: SEEDS[3], version: "0.9", status: "testing", duration_days: 11 },
   { id: "rec_5", name: { zh: "罗勒（实验）", en: "Basil (experimental)" }, seed_type: { zh: "罗勒", en: "Basil" }, version: "0.2", status: "draft", duration_days: 18 },
+  { id: "rec_6", name: { zh: "羽衣甘蓝 v1.0", en: "Kale v1.0" }, seed_type: { zh: "羽衣甘蓝", en: "Kale" }, version: "1.0", status: "active", duration_days: 10 },
+  { id: "rec_7", name: { zh: "芝麻菜 v1.0", en: "Arugula v1.0" }, seed_type: { zh: "芝麻菜", en: "Arugula" }, version: "1.0", status: "active", duration_days: 9 },
+  { id: "rec_8", name: { zh: "芥菜 v1.0", en: "Mustard v1.0" }, seed_type: { zh: "芥菜", en: "Mustard" }, version: "1.0", status: "active", duration_days: 8 },
+  { id: "rec_9", name: { zh: "甜菜 v1.0", en: "Beet v1.0" }, seed_type: { zh: "甜菜", en: "Beet" }, version: "1.0", status: "active", duration_days: 14 },
+  { id: "rec_10", name: { zh: "紫甘蓝 v1.0", en: "Red Cabbage v1.0" }, seed_type: { zh: "紫甘蓝", en: "Red Cabbage" }, version: "1.0", status: "active", duration_days: 11 },
+  { id: "rec_11", name: { zh: "小麦草 v1.0", en: "Wheatgrass v1.0" }, seed_type: { zh: "小麦草", en: "Wheatgrass" }, version: "1.0", status: "active", duration_days: 9 },
 ];
 
 const activeDevices = devices.filter((d) => d.activated);

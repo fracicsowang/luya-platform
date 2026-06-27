@@ -14,12 +14,12 @@ type ExtOrder = { id: string; channel: "shopify" | "amazon"; buyerEmail: string;
 
 /** Mock orders as they would arrive from Shopify / Amazon (read-only). */
 const EXT_ORDERS: ExtOrder[] = [
-  { id: "SHO-7001", channel: "shopify", buyerEmail: "alex@example.com", buyerName: "Alex", items: [{ sku: "LYX-01-BLK-US", qty: 1 }, { sku: "NUTRIENT-SET-ABCD", qty: 1 }], createdAt: "2026-06-25" },
-  { id: "AMZ-8001", channel: "amazon", buyerEmail: "maria@example.com", buyerName: "Maria", items: [{ sku: "TRAY-BROCCOLI-4PK", qty: 2 }], createdAt: "2026-06-25" },
-  { id: "SHO-7002", channel: "shopify", buyerEmail: "bob@example.com", buyerName: "Bob", items: [{ sku: "TRAY-RADISH-4PK", qty: 1 }], createdAt: "2026-06-26" },
+  { id: "SHO-7001", channel: "shopify", buyerEmail: "alex@example.com", buyerName: "Alex", items: [{ sku: "LYX-01-BLK-US", qty: 1 }, { sku: "NUTR-SET-ABCD", qty: 1 }], createdAt: "2026-06-25" },
+  { id: "AMZ-8001", channel: "amazon", buyerEmail: "maria@example.com", buyerName: "Maria", items: [{ sku: "TRAY-BRO-4PK", qty: 2 }], createdAt: "2026-06-25" },
+  { id: "SHO-7002", channel: "shopify", buyerEmail: "bob@example.com", buyerName: "Bob", items: [{ sku: "TRAY-RAD-4PK", qty: 1 }], createdAt: "2026-06-26" },
   { id: "AMZ-8002", channel: "amazon", buyerEmail: "newbuyer@gmail.com", buyerName: "New Buyer", items: [{ sku: "LYX-01-WHT-US", qty: 1 }], createdAt: "2026-06-26" },
-  { id: "SHO-7003", channel: "shopify", buyerEmail: "kid@example.com", buyerName: "Kid", items: [{ sku: "SUB-TRAY-MONTHLY", qty: 1 }], createdAt: "2026-06-26" },
-  { id: "AMZ-8003", channel: "amazon", buyerEmail: "dana@outlook.com", buyerName: "Dana", items: [{ sku: "BUNDLE-STARTER-US", qty: 1 }], createdAt: "2026-06-27" },
+  { id: "SHO-7003", channel: "shopify", buyerEmail: "kid@example.com", buyerName: "Kid", items: [{ sku: "SUB-TRAY-M", qty: 1 }], createdAt: "2026-06-26" },
+  { id: "AMZ-8003", channel: "amazon", buyerEmail: "dana@outlook.com", buyerName: "Dana", items: [{ sku: "BNDL-STARTER-US", qty: 1 }], createdAt: "2026-06-27" },
 ];
 
 function ChannelBadge({ c }: { c: "shopify" | "amazon" }) {

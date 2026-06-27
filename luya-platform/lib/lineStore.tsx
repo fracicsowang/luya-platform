@@ -105,12 +105,13 @@ export type LineDevice = {
   sn: string;
   uuid: string;
   activation_key: string;
+  sku: string;
   stage: Stage;
   components: Record<string, string | null>;
   tests: Record<string, TestResult>;
 };
 
-export type WorkOrder = { number: string; model: string; hw: string; fw: string; qty: number };
+export type WorkOrder = { number: string; model: string; sku: string; hw: string; fw: string; qty: number };
 
 export type LineState = {
   wo: WorkOrder;
@@ -119,7 +120,7 @@ export type LineState = {
   activeByStation: Record<StationId, string | null>;
 };
 
-const DEFAULT_WO: WorkOrder = { number: "WO-CHINA-004", model: "LYX-01", hw: "HW1.2", fw: "1.5.1", qty: 100 };
+const DEFAULT_WO: WorkOrder = { number: "WO-CHINA-004", model: "LYX-01", sku: "LYX-01-BLK-US", hw: "HW1.2", fw: "1.5.1", qty: 100 };
 
 const initialState: LineState = {
   wo: DEFAULT_WO,
@@ -154,7 +155,7 @@ export const stationOf = (id: StationId) => STATIONS.find((s) => s.id === id)!;
 
 /* ---- reducer ---- */
 type Action =
-  | { type: "generate" }
+  | { type: "generate"; sku?: string }
   | { type: "printLabels" }
   | { type: "scan"; station: StationId; sn: string }
   | { type: "scanNext"; station: StationId }
@@ -180,6 +181,7 @@ function reducer(state: LineState, action: Action): LineState {
       return action.state;
     case "generate": {
       const month = "2607";
+      const sku = action.sku || state.wo.sku;
       const devices: LineDevice[] = Array.from({ length: state.wo.qty }, (_, i) => {
         const sn = `LYX-${month}-${String(i + 1).padStart(6, "0")}`;
         return {
@@ -187,12 +189,13 @@ function reducer(state: LineState, action: Action): LineState {
           sn,
           uuid: `${hex(8)}-${hex(4)}-${hex(4)}-${hex(12)}`,
           activation_key: hex(12).toUpperCase(),
+          sku,
           stage: "generated",
           components: Object.fromEntries(COMPONENTS.map((c) => [c.key, null])),
           tests: emptyTests(),
         };
       });
-      return { ...state, devices, activeByStation: { assembly: null, test: null, pack: null }, labelsPrinted: false };
+      return { ...state, wo: { ...state.wo, sku }, devices, activeByStation: { assembly: null, test: null, pack: null }, labelsPrinted: false };
     }
     case "printLabels":
       return { ...state, labelsPrinted: true };

@@ -25,6 +25,7 @@ export type UDevice = {
   uuid: string;
   activation_key?: string;
   model: string;
+  sku?: string;
   hardware_version: string;
   firmware_version: string;
   work_order_number?: string;
@@ -62,8 +63,8 @@ const STAGE_TO_STATUS: Record<Stage, DeviceStatus> = {
 };
 
 type LineBatch = {
-  wo?: { number: string; model: string; hw: string; fw: string };
-  devices?: { sn: string; uuid: string; activation_key: string; stage: Stage; components: Record<string, string | null> }[];
+  wo?: { number: string; model: string; sku: string; hw: string; fw: string };
+  devices?: { sn: string; uuid: string; activation_key: string; sku?: string; stage: Stage; components: Record<string, string | null> }[];
 };
 
 const BIND_KEY = "luya-binding-v1";
@@ -139,6 +140,7 @@ export function useRegistry() {
       uuid: d.uuid,
       activation_key: d.activation_key,
       model: batch?.wo?.model ?? "LYX-01",
+      sku: d.sku ?? batch?.wo?.sku,
       hardware_version: batch?.wo?.hw ?? "HW1.2",
       firmware_version: batch?.wo?.fw ?? "1.5.1",
       work_order_number: batch?.wo?.number ?? "WO-CHINA-004",

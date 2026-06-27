@@ -25,7 +25,8 @@ const columns: Column<UDevice>[] = [
       </span>
     ),
   },
-  { header: { zh: "型号 / 硬件 / 固件", en: "Model / HW / FW" }, cell: (d) => `${d.model} · ${d.hardware_version} · ${d.firmware_version}`, mono: true },
+  { header: { zh: "SKU", en: "SKU" }, cell: (d) => d.sku ?? "—", mono: true },
+  { header: { zh: "硬件 / 固件", en: "HW / FW" }, cell: (d) => `${d.hardware_version} · ${d.firmware_version}`, mono: true },
   { header: { zh: "云状态", en: "Cloud status" }, cell: (d) => <StatusBadge value={d.cloud_status} /> },
   { header: { zh: "归属客户", en: "Owner" }, cell: (d) => d.owner?.name ?? "—" },
   { header: { zh: "工单", en: "Work order" }, cell: (d) => d.work_order_number ?? "—", mono: true },

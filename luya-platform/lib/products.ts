@@ -3,11 +3,16 @@ import { ProductType } from "./types";
 
 /* ----------------------------------------------------------------------------
  * Product master data — the "product identity" line: SKU → UPC → ASIN.
- * Distinct from the "device identity" line (SN → UUID). One SKU has thousands
- * of devices (SNs) under it.
- *   - SKU:  Luya's own internal code, free to define.
- *   - UPC (GTIN): GS1-assigned, one per sellable SKU, printed on the retail box.
- *   - ASIN: Amazon-generated per listing (only exists once listed on Amazon).
+ * Distinct from "device identity" (SN → UUID). One SKU has thousands of SNs.
+ *
+ * SKU conventions (Luya-defined):
+ *   machine : LYX-01-<COLOR3>-<MARKET2>     e.g. LYX-01-BLK-US
+ *   tray    : TRAY-<SEED3>-4PK              e.g. TRAY-BRO-4PK  (4-pack)
+ *   nutrient: NUTR-SET-ABCD
+ *   bundle  : BNDL-STARTER-<MARKET2>
+ *   subscr. : SUB-TRAY-M                    (digital — no UPC/ASIN)
+ * COLOR3: BLK black · WHT white · SGE sage · SND sand · CHR charcoal
+ * SEED3 : BRO RAD PEA SUN KAL ARU MUS BEE CAB WHE
  * -------------------------------------------------------------------------- */
 
 export type Channel = "shopify" | "amazon";
@@ -19,27 +24,70 @@ export type Product = {
   type: ProductType;
   variant: L;
   upc: string | null; // null = not a physical retail good (e.g. subscription)
-  asin: string | null; // null = not listed on Amazon
+  asin: string | null; // null = not listed on Amazon yet
   channels: Channel[];
   price: number;
   status: ProductStatus;
 };
 
+const tray = (abbr: string, zh: string, en: string, upc: string, asin: string | null, status: ProductStatus = "active"): Product => ({
+  sku: `TRAY-${abbr}-4PK`,
+  name: { zh: `${zh}种子盘`, en: `${en} Trays` },
+  type: "seed_tray",
+  variant: { zh: "4 连包", en: "4-pack" },
+  upc,
+  asin,
+  channels: asin ? ["shopify", "amazon"] : ["shopify"],
+  price: 24,
+  status,
+});
+
+const machine = (color: string, zh: string, en: string, upc: string, asin: string | null, status: ProductStatus): Product => ({
+  sku: `LYX-01-${color}-US`,
+  name: { zh: "Luya 种植机", en: "Luya Grower" },
+  type: "device",
+  variant: { zh: `${zh} / 美国`, en: `${en} / US` },
+  upc,
+  asin,
+  channels: asin ? ["shopify", "amazon"] : ["shopify"],
+  price: 399,
+  status,
+});
+
 export const products: Product[] = [
-  { sku: "LYX-01-BLK-US", name: { zh: "Luya 种植机", en: "Luya Grower" }, type: "device", variant: { zh: "黑色 / 美国", en: "Black / US" }, upc: "812345678905", asin: "B0CLYX01BK", channels: ["shopify", "amazon"], price: 399, status: "active" },
-  { sku: "LYX-01-WHT-US", name: { zh: "Luya 种植机", en: "Luya Grower" }, type: "device", variant: { zh: "白色 / 美国", en: "White / US" }, upc: "812345678912", asin: "B0CLYX01WT", channels: ["shopify", "amazon"], price: 399, status: "active" },
-  { sku: "BUNDLE-STARTER-US", name: { zh: "入门套装", en: "Starter Bundle" }, type: "bundle", variant: { zh: "机器+种子盘+营养液", en: "Machine + trays + nutrient" }, upc: "812345679001", asin: "B0CBUNDLE1", channels: ["shopify", "amazon"], price: 449, status: "active" },
-  { sku: "TRAY-BROCCOLI-4PK", name: { zh: "西兰花种子盘", en: "Broccoli Trays" }, type: "seed_tray", variant: { zh: "4 连包", en: "4-pack" }, upc: "812345670014", asin: "B0CTRYBRO4", channels: ["shopify", "amazon"], price: 24, status: "active" },
-  { sku: "TRAY-RADISH-4PK", name: { zh: "萝卜苗种子盘", en: "Radish Trays" }, type: "seed_tray", variant: { zh: "4 连包", en: "4-pack" }, upc: "812345670021", asin: "B0CTRYRAD4", channels: ["shopify", "amazon"], price: 24, status: "active" },
-  { sku: "TRAY-PEA-4PK", name: { zh: "豌豆苗种子盘", en: "Pea Trays" }, type: "seed_tray", variant: { zh: "4 连包", en: "4-pack" }, upc: "812345670038", asin: null, channels: ["shopify"], price: 24, status: "active" },
-  { sku: "TRAY-SUNFLOWER-4PK", name: { zh: "葵花苗种子盘", en: "Sunflower Trays" }, type: "seed_tray", variant: { zh: "4 连包", en: "4-pack" }, upc: "812345670052", asin: "B0CTRYSUN4", channels: ["amazon"], price: 24, status: "draft" },
-  { sku: "NUTRIENT-SET-ABCD", name: { zh: "营养液套装", en: "Nutrient Set" }, type: "nutrient", variant: { zh: "A/B/C/D 4 瓶", en: "A/B/C/D 4 bottles" }, upc: "812345670045", asin: "B0CNUTABCD", channels: ["shopify", "amazon"], price: 39, status: "active" },
-  { sku: "SUB-TRAY-MONTHLY", name: { zh: "每月种子盘订阅", en: "Monthly Tray Subscription" }, type: "subscription", variant: { zh: "月度", en: "Monthly" }, upc: null, asin: null, channels: ["shopify"], price: 19, status: "active" },
+  // machines — 2 colors now, more colors later (draft)
+  machine("BLK", "黑色", "Black", "812345678905", "B0CLYX01BK", "active"),
+  machine("WHT", "白色", "White", "812345678912", "B0CLYX01WT", "active"),
+  machine("SGE", "鼠尾草绿", "Sage", "812345678929", null, "draft"),
+  machine("SND", "沙色", "Sand", "812345678936", null, "draft"),
+  machine("CHR", "炭灰", "Charcoal", "812345678943", null, "draft"),
+  // bundle
+  { sku: "BNDL-STARTER-US", name: { zh: "入门套装", en: "Starter Bundle" }, type: "bundle", variant: { zh: "机器+种子盘+营养液", en: "Machine + trays + nutrient" }, upc: "812345679001", asin: "B0CBUNDLE1", channels: ["shopify", "amazon"], price: 449, status: "active" },
+  // 10 seed trays
+  tray("BRO", "西兰花", "Broccoli", "812345670014", "B0CTRYBRO4"),
+  tray("RAD", "萝卜苗", "Radish", "812345670021", "B0CTRYRAD4"),
+  tray("PEA", "豌豆苗", "Pea Shoots", "812345670038", "B0CTRYPEA4"),
+  tray("SUN", "葵花苗", "Sunflower", "812345670045", "B0CTRYSUN4"),
+  tray("KAL", "羽衣甘蓝", "Kale", "812345670052", "B0CTRYKAL4"),
+  tray("ARU", "芝麻菜", "Arugula", "812345670069", "B0CTRYARU4"),
+  tray("MUS", "芥菜", "Mustard", "812345670076", "B0CTRYMUS4"),
+  tray("BEE", "甜菜", "Beet", "812345670083", "B0CTRYBEE4"),
+  tray("CAB", "紫甘蓝", "Red Cabbage", "812345670090", "B0CTRYCAB4"),
+  tray("WHE", "小麦草", "Wheatgrass", "812345670106", null, "draft"),
+  // nutrient
+  { sku: "NUTR-SET-ABCD", name: { zh: "营养液套装", en: "Nutrient Set" }, type: "nutrient", variant: { zh: "A/B/C/D 4 瓶", en: "A/B/C/D 4 bottles" }, upc: "812345670113", asin: "B0CNUTABCD", channels: ["shopify", "amazon"], price: 39, status: "active" },
+  // subscription (digital — no UPC/ASIN)
+  { sku: "SUB-TRAY-M", name: { zh: "每月种子盘订阅", en: "Monthly Tray Subscription" }, type: "subscription", variant: { zh: "月度", en: "Monthly" }, upc: null, asin: null, channels: ["shopify"], price: 19, status: "active" },
 ];
+
+export const productBySku = (sku?: string): Product | undefined => products.find((p) => p.sku === sku);
+
+/** Machine SKUs that can be produced now (active devices). */
+export const activeMachineSkus = (): Product[] => products.filter((p) => p.type === "device" && p.status === "active");
 
 /** Who generates each identifier, and when it appears. */
 export const ID_SOURCES: { id: string; gen: L; when: L; tone: string }[] = [
-  { id: "SKU", gen: { zh: "Luya 自己定义", en: "Defined by Luya" }, when: { zh: "立项/建商品时；全链路内部用（订单/库存/工单）", en: "At product setup; used internally everywhere" }, tone: "bg-blue-50 border-blue-200" },
+  { id: "SKU", gen: { zh: "Luya 自己定义", en: "Defined by Luya" }, when: { zh: "立项/建商品时；订单/库存/工单内部用，可自由定义", en: "At product setup; used internally everywhere" }, tone: "bg-blue-50 border-blue-200" },
   { id: "UPC (GTIN)", gen: { zh: "向 GS1 申请前缀后自分配", en: "Self-assigned under a GS1 prefix" }, when: { zh: "上架前；每个可售 SKU 一个，印在零售彩盒外", en: "Before listing; one per sellable SKU, printed on the retail box" }, tone: "bg-emerald-50 border-emerald-200" },
   { id: "ASIN", gen: { zh: "Amazon 自动生成", en: "Auto-generated by Amazon" }, when: { zh: "在 Amazon 上架 listing 时；只在 Amazon 体系用", en: "When the Amazon listing is created; Amazon-only" }, tone: "bg-amber-50 border-amber-200" },
 ];

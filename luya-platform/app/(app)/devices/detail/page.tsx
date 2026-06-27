@@ -7,6 +7,7 @@ import { Bi, Card, StatusBadge } from "@/components/ui";
 import { WorkflowDiagram } from "@/components/WorkflowDiagram";
 import { wfDeviceLifecycle } from "@/lib/workflows";
 import { useRegistry, factoryResetBinding, COMPONENT_LABELS, UDevice } from "@/lib/deviceRegistry";
+import { productBySku } from "@/lib/products";
 import { recipes } from "@/lib/mock";
 import { L } from "@/lib/i18n";
 
@@ -40,13 +41,17 @@ function Section({ step, title, born, children }: { step: string; title: L; born
 function DetailBody({ dev, onReset }: { dev: UDevice; onReset: () => void }) {
   const isFactory = dev.source === "factory";
   const recipe = dev.grow?.recipeId ? recipes.find((r) => r.id === dev.grow!.recipeId) : null;
+  const product = productBySku(dev.sku);
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_390px] gap-6 items-start">
       <div className="space-y-4 min-w-0">
-        <Section step="0" title={{ zh: "批次", en: "Batch" }} born={{ zh: "开单（运营）", en: "Work order (Ops)" }}>
+        <Section step="0" title={{ zh: "批次与商品身份", en: "Batch & product identity" }} born={{ zh: "开单（运营）", en: "Work order (Ops)" }}>
           <IdRow label={{ zh: "工单号", en: "Work order" }} value={dev.work_order_number} meaning={{ zh: "批次号，质量可追溯到生产批", en: "Batch number — quality traceable to the production batch" }} />
           <IdRow label={{ zh: "工厂", en: "Factory" }} value={dev.factory} meaning={{ zh: "代工厂，失败率/QC 按工厂统计", en: "Contract factory — QC stats grouped by factory" }} />
+          <IdRow label={{ zh: "SKU（商品）", en: "SKU (product)" }} value={dev.sku} missing={!dev.sku} meaning={{ zh: "本机属于哪款商品（型号+颜色+市场）；开单时选定，N 台 SN → 1 个 SKU", en: "Which product this unit is (model+color+market); chosen at work-order; N SNs → 1 SKU" }} />
+          <IdRow label={{ zh: "UPC / GTIN", en: "UPC / GTIN" }} value={product?.upc ?? undefined} missing={!product?.upc} meaning={{ zh: "该 SKU 的零售条码（印彩盒外）；GS1 分配", en: "The SKU's retail barcode (on the box); GS1-assigned" }} />
+          <IdRow label={{ zh: "ASIN", en: "ASIN" }} value={product?.asin ?? undefined} missing={!product?.asin} meaning={{ zh: "该 SKU 在 Amazon 的编号（上架时生成）", en: "The SKU's Amazon id (generated on listing)" }} />
         </Section>
 
         <Section step="1" title={{ zh: "设备身份", en: "Device identity" }} born={{ zh: "工位 A 生成（系统）", en: "Station A · generate (system)" }}>

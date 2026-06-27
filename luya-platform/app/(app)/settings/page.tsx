@@ -30,6 +30,18 @@ export default function SettingsPage() {
         desc={{ zh: "角色权限（概念级）、平台定位、以及全部工作流程图索引。", en: "Role-based access (conceptual), platform positioning, and an index of all workflow diagrams." }}
       />
 
+      <a href={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/doc.html`} target="_blank" rel="noreferrer" className="block mb-6">
+        <Card className="p-4 border-green-300 bg-green-50/60 hover:bg-green-50 transition-colors">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <div className="text-sm font-semibold text-green-800">📄 <Bi v={{ zh: "设计说明文档（SN · 制造 · 激活）", en: "Design Doc (SN · Manufacturing · Activation)" }} /></div>
+              <div className="text-xs text-green-700/80 mt-0.5"><Bi v={{ zh: "独立 HTML 页：身份 ID 谱系、设备/种子盘制造、新激活与转让流程、包装标签、渠道同步", en: "Standalone HTML: ID lineage, device/seed-tray manufacturing, new activation & transfer, packaging, channel sync" }} /></div>
+            </div>
+            <span className="text-green-700 text-sm font-medium">↗</span>
+          </div>
+        </Card>
+      </a>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-4">
           <SectionTitle title={{ zh: "角色与权限", en: "Roles & Access" }} hint={{ zh: "V1 概念级别，登录可简化或跳过", en: "Conceptual for V1; login may be simplified or skipped" }} />

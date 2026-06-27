@@ -1,0 +1,214 @@
+import { Workflow } from "./types";
+
+/* ----------------------------------------------------------------------------
+ * WORKFLOWS — one shared picture for product managers and engineers.
+ * Each one reads top-to-bottom: WHO (actor chip) does WHAT (bilingual step).
+ * These are the "spec drawings" that sit next to each module's data.
+ * -------------------------------------------------------------------------- */
+
+/** Master: the full lifecycle of one device, China → Cloud → Customer. */
+export const wfDeviceLifecycle: Workflow = {
+  id: "device-lifecycle",
+  title: { zh: "设备全生命周期", en: "Device Lifecycle (end-to-end)" },
+  subtitle: {
+    zh: "一台机器从中国工厂出生，到客户激活种植的完整旅程",
+    en: "One machine's journey: born in China → shipped → activated → growing",
+  },
+  nodes: [
+    { actor: "factory_cn", kind: "start", title: { zh: "工厂生产开通", en: "Factory provisions device" }, detail: { zh: "在 Luya 制造门户生成身份", en: "Identity created in Luya Manufacturing Portal" } },
+    { actor: "factory_cn", title: { zh: "测试 + QC 通过", en: "Test + QC passed" } },
+    { actor: "factory_cn", title: { zh: "打印标签 + 装箱", en: "Print label + pack" } },
+    { actor: "factory_cn", title: { zh: "从中国发货", en: "Shipped from China" } },
+    { actor: "customer", title: { zh: "客户收到机器", en: "Customer receives machine" } },
+    { actor: "system", title: { zh: "客户激活，绑定到账户", en: "Activated & bound to account" }, kind: "system" },
+    { actor: "system", title: { zh: "设备上线，开始心跳", en: "Device online, heartbeat begins" }, kind: "system" },
+    { actor: "customer", kind: "end", title: { zh: "创建第一个种植任务", en: "First grow task created" } },
+  ],
+};
+
+/** China factory worker — the 10-step provisioning + test flow (spec §7.3). */
+export const wfChinaFactory: Workflow = {
+  id: "china-factory",
+  title: { zh: "中国工厂工人作业流程", en: "China Factory Worker — Production Flow" },
+  subtitle: {
+    zh: "工厂没有 MES 也没关系：设备必须先在 Luya 制造门户「出生」",
+    en: "No MES needed — every device must be 'born' in the Luya Manufacturing Portal first",
+  },
+  nodes: [
+    { actor: "ops", kind: "start", title: { zh: "运营下发工单", en: "Ops releases work order" }, detail: { zh: "例如 WO-CHINA-001，计划 200 台", en: "e.g. WO-CHINA-001, plan 200 units" } },
+    { actor: "factory_cn", title: { zh: "点击「生成设备」", en: 'Click "Generate Device"' }, detail: { zh: "系统发放 UUID / 序列号 / 激活码 / 二维码", en: "System issues UUID / SN / activation key / QR" } },
+    { actor: "factory_cn", title: { zh: "绑定硬件部件 SN", en: "Bind component SNs" }, detail: { zh: "PCB、相机、水泵、LED、Wi-Fi MAC…", en: "PCB, camera, pump, LED, Wi-Fi MAC…" } },
+    { actor: "factory_cn", title: { zh: "烧录固件（占位）", en: "Program firmware (placeholder)" } },
+    { actor: "factory_cn", title: { zh: "运行工厂测试清单", en: "Run factory test checklist" }, detail: { zh: "上电/Wi-Fi/相机/水泵/各路 LED/传感器", en: "Power / Wi-Fi / camera / pump / LEDs / sensors" } },
+    { actor: "factory_cn", kind: "decision", title: { zh: "标记 QC 结果", en: "Mark QC result" }, detail: { zh: "通过 → 继续；失败 → 返修", en: "Pass → continue; Fail → rework" } },
+    { actor: "factory_cn", title: { zh: "预览并打印标签", en: "Preview & print label" }, detail: { zh: "品牌/型号/SN/二维码/认证占位", en: "Brand / model / SN / QR / cert placeholders" } },
+    { actor: "factory_cn", title: { zh: "标记装箱", en: "Mark as packed" } },
+    { actor: "factory_cn", kind: "end", title: { zh: "标记待发货", en: "Mark shipment-ready" }, detail: { zh: "设备自动出现在「设备管理」", en: "Device appears in Device Management" } },
+  ],
+};
+
+/** US seed-tray factory worker — production / batch flow. */
+export const wfUsSeedProduction: Workflow = {
+  id: "us-seed-production",
+  title: { zh: "美国种子盘工厂工人 — 生产流程", en: "US Seed-Tray Factory Worker — Production Flow" },
+  subtitle: {
+    zh: "消耗品（种子盘 / 营养液）在美国生产并备货",
+    en: "Consumables (seed trays / nutrients) produced & stocked in the US",
+  },
+  nodes: [
+    { actor: "ops", kind: "start", title: { zh: "创建播种批次", en: "Create seeding batch" }, detail: { zh: "选择种子类型，如西兰花 4 连包", en: "Pick seed type, e.g. broccoli 4-pack" } },
+    { actor: "factory_us", title: { zh: "播种 + 记录批次/有效期", en: "Seed trays + record lot / expiry" } },
+    { actor: "factory_us", title: { zh: "贴 SKU 标签", en: "Apply SKU label" }, detail: { zh: "TRAY-BROCCOLI-4PK 等", en: "TRAY-BROCCOLI-4PK, etc." } },
+    { actor: "factory_us", kind: "decision", title: { zh: "质检", en: "Quality check" } },
+    { actor: "system", kind: "end", title: { zh: "入库，更新可用库存", en: "Stock in, update available inventory" }, detail: { zh: "库存位置 = 美国种子盘工厂", en: "Location = US seed-tray factory" } },
+  ],
+};
+
+/** US factory worker fulfilling a Shopify order — the split-shipment flow. */
+export const wfShopifyFulfillment: Workflow = {
+  id: "shopify-fulfillment",
+  title: { zh: "美国工厂收到 Shopify 订单 → 发运流程", en: "US Factory — Shopify Order → Fulfillment Flow" },
+  subtitle: {
+    zh: "一个订单含机器 + 种子盘 + 营养液，自动拆成多个履约，各自发货",
+    en: "One order (machine + trays + nutrient) auto-splits into separate fulfillments, each shipped on its own",
+  },
+  nodes: [
+    { actor: "system", kind: "start", title: { zh: "Shopify 订单导入", en: "Shopify order imported" }, detail: { zh: "订单 = 1 机器 + 1 西兰花盘 + 1 营养液套装", en: "Order = 1 machine + 1 broccoli tray + 1 nutrient set" } },
+    {
+      type: "split",
+      title: { zh: "平台自动拆分履约", en: "Platform auto-splits fulfillment" },
+      detail: { zh: "按商品类型路由到不同发货地", en: "Routed to different locations by product type" },
+      branches: [
+        {
+          label: { zh: "硬件机器", en: "Hardware machine" },
+          actor: "factory_cn",
+          steps: [
+            { actor: "factory_cn", title: { zh: "从中国工厂/美仓分配机器", en: "Allocate machine (China factory / US warehouse)" } },
+            { actor: "factory_cn", title: { zh: "装箱发货", en: "Pack & ship" } },
+          ],
+        },
+        {
+          label: { zh: "种子盘", en: "Seed trays" },
+          actor: "factory_us",
+          steps: [
+            { actor: "factory_us", title: { zh: "美国种子盘工厂拣货", en: "Pick at US seed-tray factory" } },
+            { actor: "factory_us", title: { zh: "装箱发货", en: "Pack & ship" } },
+          ],
+        },
+        {
+          label: { zh: "营养液", en: "Nutrient" },
+          actor: "factory_us",
+          steps: [
+            { actor: "factory_us", title: { zh: "美仓/种子盘工厂拣货", en: "Pick at US warehouse / seed factory" } },
+            { actor: "factory_us", title: { zh: "随种子盘合并或单独发货", en: "Ship with trays or separately" } },
+          ],
+        },
+      ],
+    },
+    { actor: "ops", title: { zh: "运营分别标记各履约「已发货」", en: "Ops marks each fulfillment as Shipped" } },
+    { actor: "customer", kind: "end", title: { zh: "客户分别收到包裹", en: "Customer receives the parcels" } },
+  ],
+};
+
+/** Binding / sharing / transfer flow — scan SN QR + email; owner + members. */
+export const wfActivation: Workflow = {
+  id: "activation",
+  title: { zh: "绑定 · 分享 · 转让流程", en: "Bind · Share · Transfer Flow" },
+  subtitle: {
+    zh: "无激活码：扫 SN 二维码（含 token）+ 邮箱 → 第一个绑定的是拥有者；可邀成员；解绑=恢复出厂、可转让",
+    en: "No code: scan SN QR (token) + email → first binder is Owner; invite members; unbind = factory reset, transferable",
+  },
+  nodes: [
+    { actor: "customer", kind: "start", title: { zh: "下载 App、邮箱登录", en: "Install App, log in with email" } },
+    { actor: "customer", title: { zh: "扫 SN 二维码（含 token，防抢注）+ 配网在场确认", en: "Scan SN QR (token, anti-jacking) + on-site Wi-Fi setup" } },
+    { actor: "system", kind: "system", title: { zh: "设备未认领 → 第一个绑定者 = 拥有者", en: "Unclaimed → first binder = Owner" } },
+    { actor: "customer", title: { zh: "拥有者邀请家庭成员（权限可设）", en: "Owner invites members (permissions set by owner)" } },
+    { actor: "customer", title: { zh: "出售/转送：拥有者解绑 → 释放所有人、恢复出厂", en: "Sell/gift: owner unbinds → releases everyone, factory reset" } },
+    { actor: "customer", kind: "end", title: { zh: "新人扫 SN 成为新拥有者（兜底：机身物理复位）", en: "New person scans SN → new Owner (fallback: physical reset)" } },
+  ],
+};
+
+/** Grow cycle flow. */
+export const wfGrow: Workflow = {
+  id: "grow",
+  title: { zh: "种植周期流程", en: "Grow Cycle Flow" },
+  subtitle: { zh: "种植任务把 设备 + 客户 + 种子盘 + 配方 串在一起", en: "A grow task ties together device + customer + tray + recipe" },
+  nodes: [
+    { actor: "customer", kind: "start", title: { zh: "放入种子盘，选择配方", en: "Insert tray, choose recipe" } },
+    { actor: "system", kind: "system", title: { zh: "下发配方到设备（LED/浇水/温湿度）", en: "Push recipe to device (LED / water / climate)" } },
+    { actor: "system", title: { zh: "按阶段控光控水：发芽→生长→采收准备", en: "Stage control: germinate → grow → harvest-prep" } },
+    { actor: "system", title: { zh: "相机拍照，AI 估算健康分（占位）", en: "Camera + AI health score (placeholder)" } },
+    { actor: "customer", kind: "end", title: { zh: "采收，标记完成", en: "Harvest, mark complete" } },
+  ],
+};
+
+/** Subscription refill flow. */
+export const wfSubscription: Workflow = {
+  id: "subscription",
+  title: { zh: "种子盘订阅补货流程", en: "Seed-Tray Subscription Refill Flow" },
+  nodes: [
+    { actor: "customer", kind: "start", title: { zh: "订阅每月种子盘", en: "Subscribe to monthly trays" } },
+    { actor: "system", kind: "system", title: { zh: "生成下次补货日期", en: "Compute next fulfillment date" } },
+    { actor: "system", title: { zh: "到期自动创建履约（美国种子盘工厂）", en: "Auto-create fulfillment (US seed factory)" } },
+    { actor: "factory_us", title: { zh: "拣货发货", en: "Pick & ship" } },
+    { actor: "system", kind: "end", title: { zh: "排下一个月", en: "Schedule next month" } },
+  ],
+};
+
+/** Support ticket flow. */
+export const wfSupport: Workflow = {
+  id: "support",
+  title: { zh: "客服工单流程", en: "Support Ticket Flow" },
+  subtitle: { zh: "客服打开工单即可看到 客户/设备/订单/种植 全上下文", en: "Agent sees full context: customer / device / order / grow task" },
+  nodes: [
+    { actor: "customer", kind: "start", title: { zh: "客户报告问题（如发霉）", en: "Customer reports issue (e.g. mold)" } },
+    { actor: "support", title: { zh: "创建工单，关联设备/订单/种植任务", en: "Create ticket; link device / order / grow task" } },
+    { actor: "support", title: { zh: "查看设备日志 + 健康分 + 历史", en: "Review device logs + health score + history" } },
+    { actor: "support", kind: "decision", title: { zh: "判断：换货 / 退款 / 指导", en: "Decide: replacement / refund / guidance" } },
+    { actor: "support", kind: "end", title: { zh: "解决并关闭工单", en: "Resolve & close ticket" } },
+  ],
+};
+
+/** OTA flow. */
+export const wfOta: Workflow = {
+  id: "ota",
+  title: { zh: "OTA 发布流程", en: "OTA Release Flow" },
+  nodes: [
+    { actor: "rnd", kind: "start", title: { zh: "上传固件/配方/AI 模型包", en: "Upload firmware / recipe / AI model package" } },
+    { actor: "rnd", title: { zh: "灰度测试", en: "Test on a small group" } },
+    { actor: "rnd", kind: "decision", title: { zh: "选择范围：单台/分组/全部", en: "Choose scope: single / group / all" } },
+    { actor: "system", kind: "system", title: { zh: "推送部署，监控成功率", en: "Push deployment, monitor success" } },
+    { actor: "system", kind: "end", title: { zh: "完成或回滚", en: "Complete or roll back" } },
+  ],
+};
+
+/** Channel sync — read-only import of orders from Shopify/Amazon, matched to devices/customers. */
+export const wfChannelSync: Workflow = {
+  id: "channel-sync",
+  title: { zh: "渠道订单 → 设备 → 客户（只读同步）", en: "Channel Order → Device → Customer (read-only sync)" },
+  subtitle: {
+    zh: "销售在 Shopify/Amazon 后台运营；Luya 只读拉取订单，按邮箱匹配客户、按归属匹配设备",
+    en: "Sales run in Shopify/Amazon; Luya pulls orders read-only and matches customer by email, device by ownership",
+  },
+  nodes: [
+    { actor: "customer", kind: "start", title: { zh: "客户在 Shopify / Amazon 下单", en: "Customer orders on Shopify / Amazon" } },
+    { actor: "system", kind: "system", title: { zh: "Webhook / SP-API 通知", en: "Webhook / SP-API notifies" } },
+    { actor: "system", title: { zh: "Luya 只读导入订单（不回写）", en: "Luya imports the order (read-only)" } },
+    { actor: "system", title: { zh: "按买家邮箱匹配/新建客户", en: "Match/create customer by buyer email" } },
+    { actor: "system", title: { zh: "按归属邮箱匹配该客户的设备(SN)", en: "Match the customer's device(s) by owner email" } },
+    { actor: "ops", kind: "end", title: { zh: "订单·设备·客户·订阅·客服 全串起来", en: "Order·device·customer·subscription·support all linked" } },
+  ],
+};
+
+export const ALL_WORKFLOWS: Workflow[] = [
+  wfChannelSync,
+  wfDeviceLifecycle,
+  wfChinaFactory,
+  wfUsSeedProduction,
+  wfShopifyFulfillment,
+  wfActivation,
+  wfGrow,
+  wfSubscription,
+  wfSupport,
+  wfOta,
+];

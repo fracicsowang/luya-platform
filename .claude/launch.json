@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "luya",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "luya-platform", "run", "dev"],
+      "port": 3000
+    }
+  ]
+}

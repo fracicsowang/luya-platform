@@ -1,0 +1,14 @@
+# dependencies / build output
+**/node_modules/
+**/.next/
+**/out/
+**/.turbo/
+
+# misc
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# large archives
+*.zip

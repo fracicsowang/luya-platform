@@ -9,6 +9,7 @@ import { wfActivation } from "@/lib/workflows";
 import { recipes } from "@/lib/mock";
 import { L } from "@/lib/i18n";
 import { ActivationProvider, Binding, ROLE_LABEL, myDevices, unclaimed, useActivation } from "@/lib/activationStore";
+import { availableTrays, useTray, SEEDS } from "@/lib/seedTrayStore";
 
 function Btn({ onClick, children, tone = "green", disabled, full, sm }: { onClick: () => void; children: React.ReactNode; tone?: "green" | "gray" | "blue" | "red"; disabled?: boolean; full?: boolean; sm?: boolean }) {
   const map = { green: "bg-green-600 hover:bg-green-700 text-white", blue: "bg-blue-600 hover:bg-blue-700 text-white", gray: "bg-gray-100 hover:bg-gray-200 text-gray-700", red: "bg-red-600 hover:bg-red-700 text-white" };
@@ -102,12 +103,37 @@ function AddDeviceView() {
   );
 }
 
+function TrayPicker({ sn, me, onDone, onCancel }: { sn: string; me: string; onDone: (recipeId: string | null) => void; onCancel: () => void }) {
+  const trays = availableTrays();
+  return (
+    <div className="rounded-lg border border-gray-200 p-2 space-y-1.5">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] font-medium text-gray-600"><Bi v={{ zh: "扫码添加种子盘", en: "Scan a seed tray" }} /></span>
+        <button onClick={onCancel} className="text-[11px] text-gray-400 hover:text-gray-700"><Bi v={{ zh: "取消", en: "Cancel" }} /></button>
+      </div>
+      {trays.length === 0 ? (
+        <div className="text-[11px] text-amber-800 bg-amber-50 rounded px-2 py-1.5"><Bi v={{ zh: "无可用种子盘。去「种子盘生产线」生产一批。仅支持 Luya 自产托盘。", en: "No trays available. Produce a batch on the Seed-Tray Line. Only Luya-made trays work." }} /></div>
+      ) : (
+        <div className="space-y-1 max-h-40 overflow-y-auto">
+          {trays.slice(0, 12).map((t) => (
+            <button key={t.id} onClick={() => onDone(useTray(t.id, { email: me, sn, at: new Date().toISOString().slice(0, 16).replace("T", " ") }))} className="w-full flex items-center justify-between rounded border border-gray-200 px-2 py-1.5 text-left hover:bg-green-50">
+              <span className="font-mono text-xs">▣ {t.id}</span>
+              <span className="text-[11px] text-green-600"><Bi v={SEEDS[t.seedKey].name} /> · <Bi v={{ zh: "添加", en: "Add" }} /></span>
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="text-[10px] text-gray-400"><Bi v={{ zh: "二维码一次性：添加后该托盘即失效，任何账户都不能再添加。", en: "Single-use QR: once added, the tray is invalid and no account can add it again." }} /></div>
+    </div>
+  );
+}
+
 function DeviceCard({ binding, role, me }: { binding: Binding; role: "owner" | "member"; me: string }) {
   const { dispatch } = useActivation();
   const [invEmail, setInvEmail] = useState("");
   const [invOp, setInvOp] = useState(true);
+  const [scanTrays, setScanTrays] = useState(false);
   const recipe = binding.recipeId ? recipes.find((r) => r.id === binding.recipeId) : null;
-  const activeRecipes = recipes.filter((r) => r.status === "active");
 
   return (
     <div className="rounded-xl border border-gray-200 p-3 space-y-2">
@@ -120,15 +146,15 @@ function DeviceCard({ binding, role, me }: { binding: Binding; role: "owner" | "
       </div>
       <div className="text-[11px] text-gray-500"><Bi v={{ zh: "拥有者", en: "Owner" }} />: {binding.ownerName} <span className="text-gray-300">·</span> {binding.ownerEmail}</div>
 
-      {/* grow */}
+      {/* grow — started by scanning a single-use seed-tray QR */}
       {recipe ? (
         <div className="text-xs text-green-700">🪴 <Bi v={{ zh: "种植中：", en: "Growing: " }} /><Bi v={recipe.seed_type} /></div>
       ) : role === "owner" ? (
-        <div className="flex flex-wrap gap-1">
-          {activeRecipes.map((r) => (
-            <button key={r.id} onClick={() => dispatch({ type: "startGrow", sn: binding.sn, recipeId: r.id })} className="rounded border border-gray-200 px-2 py-0.5 text-[11px] hover:bg-green-50"><Bi v={r.seed_type} /></button>
-          ))}
-        </div>
+        !scanTrays ? (
+          <button onClick={() => setScanTrays(true)} className="rounded-lg bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 text-xs font-medium">🏷️ <Bi v={{ zh: "扫码添加种子盘 · 开始种植", en: "Scan seed tray · start grow" }} /></button>
+        ) : (
+          <TrayPicker sn={binding.sn} me={me} onCancel={() => setScanTrays(false)} onDone={(rid) => { if (rid) dispatch({ type: "startGrow", sn: binding.sn, recipeId: rid }); setScanTrays(false); }} />
+        )
       ) : null}
 
       {/* members */}

@@ -47,20 +47,39 @@ export const wfChinaFactory: Workflow = {
   ],
 };
 
-/** US seed-tray factory worker — production / batch flow. */
+/** US seed-tray factory worker — 5-step production flow. */
 export const wfUsSeedProduction: Workflow = {
   id: "us-seed-production",
-  title: { zh: "美国种子盘工厂工人 — 生产流程", en: "US Seed-Tray Factory Worker — Production Flow" },
+  title: { zh: "美国种子盘工厂 — 生产流程（5 步）", en: "US Seed-Tray Factory — Production Flow (5 steps)" },
   subtitle: {
-    zh: "消耗品（种子盘 / 营养液）在美国生产并备货",
-    en: "Consumables (seed trays / nutrients) produced & stocked in the US",
+    zh: "消耗品（种子盘）在美国生产并备货；每个托盘有唯一二维码，仅支持 Luya 自产托盘",
+    en: "Consumable trays produced & stocked in the US; each tray has a unique QR; only Luya-made trays supported",
   },
   nodes: [
-    { actor: "ops", kind: "start", title: { zh: "创建播种批次", en: "Create seeding batch" }, detail: { zh: "选择种子类型，如西兰花 4 连包", en: "Pick seed type, e.g. broccoli 4-pack" } },
-    { actor: "factory_us", title: { zh: "播种 + 记录批次/有效期", en: "Seed trays + record lot / expiry" } },
-    { actor: "factory_us", title: { zh: "贴 SKU 标签", en: "Apply SKU label" }, detail: { zh: "TRAY-BROCCOLI-4PK 等", en: "TRAY-BROCCOLI-4PK, etc." } },
-    { actor: "factory_us", kind: "decision", title: { zh: "质检", en: "Quality check" } },
-    { actor: "system", kind: "end", title: { zh: "入库，更新可用库存", en: "Stock in, update available inventory" }, detail: { zh: "库存位置 = 美国种子盘工厂", en: "Location = US seed-tray factory" } },
+    { actor: "ops", kind: "start", title: { zh: "创建播种批次（选种子类型 + 数量）", en: "Create seeding batch (seed type + qty)" }, detail: { zh: "系统为每个托盘生成唯一 ID + 二维码", en: "System issues a unique ID + QR per tray" } },
+    { actor: "factory_us", title: { zh: "a. 取出种子托盘", en: "a. Take out the seed tray" } },
+    { actor: "factory_us", title: { zh: "b. 放入椰糠", en: "b. Add coco coir" } },
+    { actor: "factory_us", title: { zh: "c. 撒种子", en: "c. Sow seeds" } },
+    { actor: "factory_us", title: { zh: "d. 包装", en: "d. Package" } },
+    { actor: "factory_us", title: { zh: "e. 贴种子名称 + 二维码", en: "e. Label: seed name + QR" } },
+    { actor: "system", kind: "end", title: { zh: "记录批次/有效期，入库待发货", en: "Record lot/expiry, stock & ship-ready" } },
+  ],
+};
+
+/** Customer uses a seed tray — scan QR (single-use) → grow. */
+export const wfSeedTrayUse: Workflow = {
+  id: "seed-tray-use",
+  title: { zh: "客户使用种子盘流程", en: "Customer Uses a Seed Tray" },
+  subtitle: {
+    zh: "扫码添加种子盘 → 放入机器开始种植；二维码一次性，添加后即失效；仅支持 Luya 自产托盘",
+    en: "Scan QR to add the tray → insert & grow; the QR is single-use (invalid after first add); only Luya trays",
+  },
+  nodes: [
+    { actor: "customer", kind: "start", title: { zh: "扫种子盘二维码", en: "Scan the seed-tray QR" } },
+    { actor: "system", kind: "system", title: { zh: "校验：Luya 自产 + 未被使用过", en: "Validate: Luya-made + not used before" } },
+    { actor: "customer", title: { zh: "放入机器，绑定到该设备的种植任务", en: "Insert in machine, bind to this device's grow" } },
+    { actor: "system", title: { zh: "按种子类型下发配方，开始种植", en: "Push the recipe for that seed, start growing" } },
+    { actor: "system", kind: "end", title: { zh: "该二维码标记已用，不能再添加", en: "QR marked used — cannot be added again" } },
   ],
 };
 
@@ -205,6 +224,7 @@ export const ALL_WORKFLOWS: Workflow[] = [
   wfDeviceLifecycle,
   wfChinaFactory,
   wfUsSeedProduction,
+  wfSeedTrayUse,
   wfShopifyFulfillment,
   wfActivation,
   wfGrow,

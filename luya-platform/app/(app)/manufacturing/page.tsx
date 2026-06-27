@@ -82,6 +82,23 @@ export default function ManufacturingPage() {
         </Card>
       </Link>
 
+      {/* Entry into the US seed-tray production line */}
+      <Link href="/manufacturing/seed-line" className="block">
+        <Card className="p-4 border-green-300 bg-green-50/60 hover:bg-green-50 transition-colors">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <div className="text-sm font-semibold text-green-800">
+                🌱 <Bi v={{ zh: "美国种子盘生产线（扫码作业）", en: "US Seed-Tray Production Line (scan-driven)" }} />
+              </div>
+              <div className="text-xs text-green-700/80 mt-0.5">
+                <Bi v={{ zh: "美国工厂 5 步：取盘 → 椰糠 → 撒种 → 包装 → 贴种子名+二维码（每盘唯一码，客户一次性扫码添加）", en: "US factory 5 steps: take tray → coir → sow → package → label QR (unique single-use code per tray)" }} />
+              </div>
+            </div>
+            <span className="text-green-700 text-sm font-medium">→</span>
+          </div>
+        </Card>
+      </Link>
+
       {/* Entry into the packaging label spec */}
       <Link href="/manufacturing/packaging" className="block">
         <Card className="p-4 hover:bg-gray-50 transition-colors">

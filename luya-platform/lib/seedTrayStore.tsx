@@ -56,15 +56,16 @@ export type SeedTray = {
 
 export type SeedBatch = { seedKey: SeedKey; qty: number; lot: string; expiry: string };
 
-export type SeedState = { batch: SeedBatch | null; trays: SeedTray[]; activeId: string | null };
+export type SeedState = { batch: SeedBatch | null; trays: SeedTray[]; activeId: string | null; labelsPrinted: boolean };
 
-const initialState: SeedState = { batch: null, trays: [], activeId: null };
+const initialState: SeedState = { batch: null, trays: [], activeId: null, labelsPrinted: false };
 
 const hex = (n: number) => Array.from({ length: n }, () => Math.floor(Math.random() * 16).toString(16)).join("");
 
 type Action =
   | { type: "hydrate"; state: SeedState }
   | { type: "generate"; seedKey: SeedKey; qty: number }
+  | { type: "printLabels" }
   | { type: "scan"; id: string }
   | { type: "scanNext" }
   | { type: "advance"; id: string }
@@ -88,8 +89,10 @@ function reducer(state: SeedState, action: Action): SeedState {
         stage: "created",
         used: null,
       }));
-      return { batch: { seedKey: action.seedKey, qty: action.qty, lot, expiry }, trays, activeId: null };
+      return { batch: { seedKey: action.seedKey, qty: action.qty, lot, expiry }, trays, activeId: null, labelsPrinted: false };
     }
+    case "printLabels":
+      return { ...state, labelsPrinted: true };
     case "scan":
       return { ...state, activeId: action.id };
     case "scanNext": {

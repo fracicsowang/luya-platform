@@ -57,6 +57,7 @@ export const wfUsSeedProduction: Workflow = {
   },
   nodes: [
     { actor: "ops", kind: "start", title: { zh: "创建播种批次（选种子类型 + 数量）", en: "Create seeding batch (seed type + qty)" }, detail: { zh: "系统为每个托盘生成唯一 ID + 二维码", en: "System issues a unique ID + QR per tray" } },
+    { actor: "factory_us", title: { zh: "批量印刷整卷防水标签（提前下发）", en: "Batch-print the waterproof label roll (up front)" }, detail: { zh: "产线又湿又快，不逐盘打印；第 e 步顺序撕贴", en: "Line is wet & fast — pre-printed, peeled per tray at step e" } },
     { actor: "factory_us", title: { zh: "a. 取出种子托盘", en: "a. Take out the seed tray" } },
     { actor: "factory_us", title: { zh: "b. 放入椰糠", en: "b. Add coco coir" } },
     { actor: "factory_us", title: { zh: "c. 撒种子", en: "c. Sow seeds" } },

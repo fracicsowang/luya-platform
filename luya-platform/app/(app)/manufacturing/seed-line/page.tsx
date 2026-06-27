@@ -98,6 +98,27 @@ function GeneratePanel() {
   );
 }
 
+function PrintLabels() {
+  const { state, dispatch } = useSeedTray();
+  if (!state.batch) return null;
+  const sample = state.trays[0];
+  if (state.labelsPrinted) {
+    return (
+      <Card className="p-3 flex items-center gap-2 flex-wrap bg-green-50/50 border-green-200">
+        <span className="text-xs text-green-800">✓ <Bi v={{ zh: `已批量打印 ${state.batch.qty} 张防水标签卷，下发到贴标工位（第 e 步）。`, en: `Printed a roll of ${state.batch.qty} waterproof labels, sent to the labeling station (step e).` }} /></span>
+      </Card>
+    );
+  }
+  return (
+    <Card className="p-4 bg-amber-50/50 border-amber-200">
+      <div className="text-sm font-semibold text-amber-900 mb-1"><Bi v={{ zh: "第 2 步 · 批量印刷标签卷", en: "Step 2 · Batch-print the label roll" }} /></div>
+      <p className="text-xs text-amber-800/90 mb-3 max-w-xl"><Bi v={{ zh: "种子盘提前整卷预印（防水），到第 e 步顺序撕贴——产线又湿又快，不逐盘打印。二维码含 token：防伪、保证一次性、仅 Luya 自产。", en: "Pre-print the whole waterproof roll up front; peel one per tray at step e (the line is wet & fast). The QR carries a token: anti-counterfeit, single-use, Luya-only." }} /></p>
+      {sample ? <div className="mb-3"><TrayLabel id={sample.id} seedKey={sample.seedKey} lot={sample.lot} expiry={sample.expiry} /></div> : null}
+      <Btn onClick={() => dispatch({ type: "printLabels" })}>🖨️ <Bi v={{ zh: `打印 ${state.batch.qty} 张标签卷`, en: `Print ${state.batch.qty}-label roll` }} /></Btn>
+    </Card>
+  );
+}
+
 function Station() {
   const { state, dispatch } = useSeedTray();
   const tray = state.trays.find((t) => t.id === state.activeId) ?? null;
@@ -144,7 +165,10 @@ function Station() {
         {nextAction ? (
           <div className="space-y-3">
             {tray.stage === "packaged" ? <TrayLabel id={tray.id} seedKey={tray.seedKey} lot={tray.lot} expiry={tray.expiry} /> : null}
-            <Btn tone={tray.stage === "packaged" ? "green" : "blue"} onClick={() => dispatch({ type: "advance", id: tray.id })}><Bi v={nextAction} /></Btn>
+            <Btn tone={tray.stage === "packaged" ? "green" : "blue"} disabled={tray.stage === "packaged" && !state.labelsPrinted} onClick={() => dispatch({ type: "advance", id: tray.id })}><Bi v={nextAction} /></Btn>
+            {tray.stage === "packaged" && !state.labelsPrinted ? (
+              <div className="text-[11px] text-amber-700"><Bi v={{ zh: "请先在上方「批量印刷标签卷」，才能贴标。", en: "Print the label roll above first before labeling." }} /></div>
+            ) : null}
           </div>
         ) : (
           <div className="rounded-md bg-green-50 text-green-700 text-sm px-3 py-3 flex items-center justify-between gap-2 flex-wrap">
@@ -202,6 +226,7 @@ function SeedLine() {
 
       {!has ? <GeneratePanel /> : (
         <div className="space-y-4">
+          <PrintLabels />
           <ScanBar />
           <Station />
         </div>
